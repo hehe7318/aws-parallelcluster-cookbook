@@ -40,6 +40,7 @@ This file is used to list changes made in each version of the AWS ParallelCluste
 **BUG FIXES**
 - Remove usage of cfn-init for compute node bootstrapping to reduce node scale up time.
 - Fix the execution of overriding aws-parallelcluster-node package only on the head node during update.
+- Fix an issue where containerized jobs executed through Pyxis/Enroot in a multi-user environment (integrated with Active Directory) would fail.
 
 3.12.0
 ------
