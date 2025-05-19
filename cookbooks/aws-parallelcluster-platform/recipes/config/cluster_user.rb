@@ -89,6 +89,40 @@ when 'LoginNode'
     shell '/bin/bash'
   end
 
+  directory node['cluster']['login_authorized_keys_dir'] do
+    owner 'root'
+    group 'root'
+    mode '0755'
+  end
+
+  directory "#{node['cluster']['login_authorized_keys_dir']}/#{node['cluster']['cluster_user']}" do
+    owner node['cluster']['cluster_user']
+    group node['cluster']['cluster_user']
+    mode '0700'
+  end
+
+  bash 'populate_login_node_local_key' do
+    code <<-PERMS
+      set -e
+      cp #{node['cluster']['shared_dir_login_nodes']}/authorized_keys \
+         #{node['cluster']['login_authorized_keys_dir']}/#{node['cluster']['cluster_user']}/authorized_keys
+      chown #{node['cluster']['cluster_user']}:#{node['cluster']['cluster_user']} \
+         #{node['cluster']['login_authorized_keys_dir']}/#{node['cluster']['cluster_user']}/authorized_keys
+      chmod 0600 #{node['cluster']['login_authorized_keys_dir']}/#{node['cluster']['cluster_user']}/authorized_keys
+    PERMS
+    not_if { ::File.exist?("#{node['cluster']['login_authorized_keys_dir']}/#{node['cluster']['cluster_user']}/authorized_keys") }
+  end
+
+  bash 'patch_sshd_config_for_login_nodes' do
+    code <<-CONF
+      set -e
+      AUTH_DIR="#{node['cluster']['login_authorized_keys_dir']}/#{node['cluster']['cluster_user']}"
+      LINE='AuthorizedKeysFile /etc/ssh/login_nodes_authorized_keys.d/%u/authorized_keys .ssh/authorized_keys'
+      grep -q "${AUTH_DIR}/authorized_keys" /etc/ssh/sshd_config || echo "${LINE}" >> /etc/ssh/sshd_config
+    CONF
+  end
+
+  # keep the existing copy into /home for backward compatibility
   bash "copy_auth_file" do
     code <<-PERMS
       set -e

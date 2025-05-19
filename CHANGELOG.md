@@ -12,6 +12,9 @@ This file is used to list changes made in each version of the AWS ParallelCluste
 **CHANGES**
 - Ubuntu 20.04 is no longer supported.
 
+**BUG FIXES**
+- Fix an issue where users cannot SSH into LoginNodes with LoginNode-specific keys when different keys are specified for HeadNode and LoginNodes.
+
 3.13.1
 ------
 

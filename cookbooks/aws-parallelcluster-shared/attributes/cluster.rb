@@ -23,6 +23,7 @@ default['cluster']['cluster_config_path'] = "#{node['cluster']['shared_dir']}/cl
 default['cluster']['previous_cluster_config_path'] = "#{node['cluster']['shared_dir']}/previous-cluster-config.yaml"
 default['cluster']['login_cluster_config_path'] = "#{node['cluster']['shared_dir_login_nodes']}/cluster-config.yaml"
 default['cluster']['login_previous_cluster_config_path'] = "#{node['cluster']['shared_dir_login_nodes']}/previous-cluster-config.yaml"
+default['cluster']['login_authorized_keys_dir'] = '/etc/ssh/login_nodes_authorized_keys.d'
 default['cluster']['change_set_path'] = "#{node['cluster']['shared_dir']}/change-set.json"
 default['cluster']['instance_types_data_path'] = "#{node['cluster']['shared_dir']}/instance-types-data.json"
 default['cluster']['previous_instance_types_data_path'] = "#{node['cluster']['shared_dir']}/previous-instance-types-data.json"
