@@ -12,6 +12,12 @@ This file is used to list changes made in each version of the AWS ParallelCluste
 **CHANGES**
 - Ubuntu 20.04 is no longer supported.
 
+3.13.2
+------
+
+**CHANGES**
+- There were no changes for this version.
+
 3.13.1
 ------
 
