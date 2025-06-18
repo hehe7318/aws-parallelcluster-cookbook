@@ -16,7 +16,7 @@ This file is used to list changes made in each version of the AWS ParallelCluste
 ------
 
 **CHANGES**
-- There were no changes for this version.
+- Fix build image failures occurring on non-latest versions of Rocky Linux 9.
 
 3.13.1
 ------
