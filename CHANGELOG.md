@@ -6,7 +6,7 @@ This file is used to list changes made in each version of the AWS ParallelCluste
 3.13.2
 ------
 
-**CHANGES**
+**BUG FIXES**
 - Fix `build-image` failure on Rocky 9, occurring when the parent image is not the latest version. https://github.com/aws/aws-parallelcluster/issues/6874
 
 3.13.1
