@@ -7,7 +7,7 @@ This file is used to list changes made in each version of the AWS ParallelCluste
 ------
 
 **BUG FIXES**
-- Fix `build-image` failure on Rocky 9, occurring when the parent image does not ship the latest kernel version
+- Fix `build-image` failure on Rocky 9, occurring when the parent image does not ship the latest kernel version.
   See https://github.com/aws/aws-parallelcluster/issues/6874.
 
 3.13.1
