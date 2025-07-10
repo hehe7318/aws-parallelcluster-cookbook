@@ -3,7 +3,7 @@ driver:
   name: dokken
   platform: linux/amd64
   pull_platform_image: false # Use the local images, prevent pull of docker images from Docker Hub,
-  chef_version: 18.7.3 # Chef version aligned with the one used to build the images
+  chef_version: 18.7.10
   chef_image: cincproject/cinc
   env:
     # Since the kernel version of the docker images is not in the expected pattern,
@@ -59,7 +59,7 @@ platforms:
       cluster:
         base_os: ubuntu2404
         # Since the kernel version of the docker images is not compatible (6.2.0-1016-azure), set a fake kernel value to permit to install Lustre on docker.
-        kernel_release: '5.15.0-1028-aws'
+        kernel_release: '6.8.0-1031-aws'
   - name: rhel8
     driver:
       image: <% if ENV['KITCHEN_RHEL8_IMAGE'] %> <%= ENV['KITCHEN_RHEL8_IMAGE'] %> <% else %> registry.access.redhat.com/ubi8/ubi <% end %>
