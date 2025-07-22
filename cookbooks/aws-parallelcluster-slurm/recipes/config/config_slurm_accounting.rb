@@ -76,6 +76,10 @@ service "slurmdbd" do
   action action
 end unless on_docker?
 
+file "/var/spool/slurm.state/clustername" do
+  action "delete"
+end
+
 if node['cluster']['slurmdbd_service_enabled'] == "true"
   # After starting slurmdbd the database may not be fully responsive yet and
   # its bootstrapping may fail. We need to wait for sacctmgr to successfully

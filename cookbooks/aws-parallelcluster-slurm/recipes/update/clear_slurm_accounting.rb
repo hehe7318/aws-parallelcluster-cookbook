@@ -23,3 +23,7 @@ service "slurmdbd" do
   supports restart: false
   action %i(disable stop)
 end
+
+file '/var/spool/slurm.state/clustername' do
+  action :delete
+end
