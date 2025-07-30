@@ -579,6 +579,12 @@ case $platform in
     # FIXME:  "el" is deprecated, should use "redhat"
     platform_version=$major_version
     ;;
+  # Warning: the official script from CINC doesn't use major version for rocky,
+  # which is wrong according to the directory structure: https://downloads.cinc.sh/files/stable/cinc/18.7.10/rocky/
+  # The behavior should be the same as "el" above. Therefore, the following rocky section is manually added.
+  "rocky")
+    platform_version=$major_version
+    ;;
   "debian")
     if test "x$major_version" = "x5"; then
       # This is here for potential back-compat.
