@@ -45,6 +45,7 @@ template "#{node['cluster']['slurm']['install_dir']}/etc/slurm.conf" do
   owner 'root'
   group 'root'
   mode '0644'
+  variables(is_block_topology_plugin_supported: platform?('amazon') && node['platform_version'] == "2")
 end
 
 template "#{node['cluster']['slurm']['install_dir']}/etc/gres.conf" do
@@ -52,6 +53,10 @@ template "#{node['cluster']['slurm']['install_dir']}/etc/gres.conf" do
   owner 'root'
   group 'root'
   mode '0644'
+end
+
+block_topology 'Add Block Topology configuration' do
+  action :configure
 end
 
 unless on_docker?

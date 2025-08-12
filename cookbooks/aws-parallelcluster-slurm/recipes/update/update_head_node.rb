@@ -151,6 +151,10 @@ ruby_block "replace slurm queue nodes" do
   end
 end
 
+block_topology 'Update or Cleanup Slurm Topology' do
+  action :update
+end
+
 execute "generate_pcluster_slurm_configs" do
   command "#{cookbook_virtualenv_path}/bin/python #{node['cluster']['scripts_dir']}/slurm/pcluster_slurm_config_generator.py" \
           " --output-directory #{node['cluster']['slurm']['install_dir']}/etc/" \
