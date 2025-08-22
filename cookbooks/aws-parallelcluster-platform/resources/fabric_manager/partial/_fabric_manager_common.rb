@@ -31,7 +31,7 @@ end
 
 action :configure do
   # Start nvidia fabric manager on NVSwitch enabled systems
-  if get_nvswitches > 1
+  if get_nvswitches > 1 && !is_gb200_node?
     service 'nvidia-fabricmanager' do
       action %i(start enable)
       supports status: true
@@ -40,7 +40,8 @@ action :configure do
 end
 
 def _fabric_manager_enabled
-  _nvidia_enabled
+  # NVIDIA Fabric Manager not present on ARM
+  !arm_instance? && _nvidia_enabled
 end
 
 def _nvidia_enabled

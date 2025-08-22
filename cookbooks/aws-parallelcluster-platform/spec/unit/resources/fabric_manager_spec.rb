@@ -118,55 +118,45 @@ describe 'fabric_manager:_nvidia_enabled' do
 end
 
 describe 'fabric_manager:_fabric_manager_enabled' do
-  for_all_oses do |platform, version|
-    context "on #{platform}#{version}" do
-      context 'when on arm' do
-        cached(:chef_run) do
-          allow_any_instance_of(Object).to receive(:arm_instance?).and_return(true)
-          ChefSpec::SoloRunner.new(step_into: ['fabric_manager'], platform: platform, version: version)
-        end
-        cached(:resource) do
-          ConvergeFabricManager.setup(chef_run, nvidia_enabled: true)
-          chef_run.find_resource('fabric_manager', 'setup')
-        end
-        if platform == 'amazon' && version == '2'
-          it "is not enabled" do
-            expect(resource._fabric_manager_enabled).to eq(false)
-          end
-        else
-          it "is enabled" do
-            expect(resource._fabric_manager_enabled).to eq(true)
-          end
-        end
+  context 'when on arm' do
+    cached(:chef_run) do
+      allow_any_instance_of(Object).to receive(:arm_instance?).and_return(true)
+      ChefSpec::SoloRunner.new(step_into: ['fabric_manager'])
+    end
+    cached(:resource) do
+      ConvergeFabricManager.setup(chef_run, nvidia_enabled: true)
+      chef_run.find_resource('fabric_manager', 'setup')
+    end
+    it "is not enabled" do
+      expect(resource._fabric_manager_enabled).to eq(false)
+    end
+  end
+
+  context 'when not on arm' do
+    cached(:chef_run) do
+      allow_any_instance_of(Object).to receive(:arm_instance?).and_return(false)
+      ChefSpec::SoloRunner.new(step_into: ['fabric_manager'])
+    end
+
+    context 'when nvidia enabled' do
+      cached(:resource) do
+        ConvergeFabricManager.setup(chef_run, nvidia_enabled: true)
+        chef_run.find_resource('fabric_manager', 'setup')
       end
 
-      context 'when not on arm' do
-        cached(:chef_run) do
-          allow_any_instance_of(Object).to receive(:arm_instance?).and_return(false)
-          ChefSpec::SoloRunner.new(step_into: ['fabric_manager'])
-        end
+      it "is enabled" do
+        expect(resource._fabric_manager_enabled).to eq(true)
+      end
+    end
 
-        context 'when nvidia enabled' do
-          cached(:resource) do
-            ConvergeFabricManager.setup(chef_run, nvidia_enabled: true)
-            chef_run.find_resource('fabric_manager', 'setup')
-          end
+    context 'when nvidia not enabled' do
+      cached(:resource) do
+        ConvergeFabricManager.setup(chef_run, nvidia_enabled: false)
+        chef_run.find_resource('fabric_manager', 'setup')
+      end
 
-          it "is enabled" do
-            expect(resource._fabric_manager_enabled).to eq(true)
-          end
-        end
-
-        context 'when nvidia not enabled' do
-          cached(:resource) do
-            ConvergeFabricManager.setup(chef_run, nvidia_enabled: false)
-            chef_run.find_resource('fabric_manager', 'setup')
-          end
-
-          it "is not enabled" do
-            expect(resource._fabric_manager_enabled).to eq(false)
-          end
-        end
+      it "is not enabled" do
+        expect(resource._fabric_manager_enabled).to eq(false)
       end
     end
   end
@@ -227,44 +217,60 @@ describe 'fabric_manager:setup' do
 end
 
 describe 'fabric_manager:configure' do
+  let(:output_of_shell) { double('shell_out') }
   cached(:nvidia_driver_version) { 'nvidia_driver_version' }
+  [true, false].each do |is_gb200|
+    for_all_oses do |platform, version|
+      context "on #{platform}#{version} on #{is_gb200} gb200 node" do
+        cached(:fabric_manager_package) { platform == 'ubuntu' ? 'nvidia-fabricmanager-535' : 'nvidia-fabric-manager' }
+        cached(:fabric_manager_version) { platform == 'ubuntu' ? "#{nvidia_driver_version}" : nvidia_driver_version }
 
-  for_all_oses do |platform, version|
-    context "on #{platform}#{version}" do
-      cached(:fabric_manager_package) { platform == 'ubuntu' ? 'nvidia-fabricmanager-535' : 'nvidia-fabric-manager' }
-      cached(:fabric_manager_version) { platform == 'ubuntu' ? "#{nvidia_driver_version}" : nvidia_driver_version }
-
-      context('when nvswithes are > 1') do
-        cached(:chef_run) do
-          stubs_for_resource('fabric_manager') do |res|
-            allow(res).to receive(:get_nvswitches).and_return(2)
+        context('when nvswithes are > 1') do
+          cached(:chef_run) do
+            stubs_for_provider('fabric_manager') do |res|
+              allow(res).to receive(:get_nvswitches).and_return(2)
+              allow(res).to receive(:get_device_ids).and_return({ 'gb200' => 'test' })
+              allow(res).to receive(:is_gb200_node?).and_return(is_gb200)
+              allow(res).to receive(:shell_out).and_return(output_of_shell)
+            end
+            runner = runner(platform: platform, version: version, step_into: ['fabric_manager'])
+            ConvergeFabricManager.configure(runner)
           end
-          runner = runner(platform: platform, version: version, step_into: ['fabric_manager'])
-          ConvergeFabricManager.configure(runner)
-        end
 
-        it 'configures fabric manager' do
-          is_expected.to configure_fabric_manager('configure')
-        end
-
-        it 'starts nvidia-fabricmanager service' do
-          is_expected.to start_service('nvidia-fabricmanager')
-            .with_action(%i(start enable))
-            .with_supports({ status: true })
-        end
-      end
-
-      context('when nvswithes are not > 1') do
-        cached(:chef_run) do
-          stubs_for_resource('fabric_manager') do |res|
-            allow(res).to receive(:get_nvswitches).and_return(1)
+          it 'configures fabric manager' do
+            is_expected.to configure_fabric_manager('configure')
           end
-          runner = runner(platform: platform, version: version, step_into: ['fabric_manager'])
-          ConvergeFabricManager.configure(runner)
+
+          if is_gb200
+            it 'does not start nvidia-fabricmanager service' do
+              is_expected.not_to start_service('nvidia-fabricmanager')
+                .with_action(%i(start enable))
+                .with_supports({ status: true })
+            end
+          else
+            it 'starts nvidia-fabricmanager service' do
+              is_expected.to start_service('nvidia-fabricmanager')
+                .with_action(%i(start enable))
+                .with_supports({ status: true })
+            end
+          end
         end
 
-        it "doesn't start nvidia-fabricmanager service" do
-          is_expected.not_to start_service('nvidia-fabricmanager')
+        context('when nvswithes are not > 1') do
+          cached(:chef_run) do
+            stubs_for_provider('fabric_manager[configure]') do |res|
+              allow(res).to receive(:get_nvswitches).and_return(1)
+              allow(res).to receive(:get_device_ids).and_return({ 'gb200' => 'test' })
+              allow(res).to receive(:is_gb200_node?).and_return(is_gb200)
+              allow(res).to receive(:shell_out).and_return(output_of_shell)
+            end
+            runner = runner(platform: platform, version: version, step_into: ['fabric_manager'])
+            ConvergeFabricManager.configure(runner)
+          end
+
+          it "doesn't start nvidia-fabricmanager service" do
+            is_expected.not_to start_service('nvidia-fabricmanager')
+          end
         end
       end
     end
