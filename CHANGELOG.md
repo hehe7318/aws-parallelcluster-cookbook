@@ -8,13 +8,13 @@ This file is used to list changes made in each version of the AWS ParallelCluste
 
 **ENHANCEMENTS**
 - Add support for p6e-gb200 instances via capacity blocks.
-- Remove `UnkillableStepTimeout` from slurm.conf and let slurm set this value.
 - Add `build-image` support for kernel 6.12 of Amazon Linux 2023. The official ParallelCluster Amazon Linux 2023 AMIs use kernel 6.12.
 
 **CHANGES**
 - Install nvidia-imex for all OSs except AL2.
 - Ubuntu 20.04 is no longer supported.
 - Remove `berkshelf`. All cookbooks are local and do not need `berkshelf` dependency management.
+- Remove `UnkillableStepTimeout` from slurm.conf and let slurm set this value.
 - Upgrade Slurm to version 24.11.6 (from 24.05.8).
 - Upgrade EFA installer to 1.43.2 (from 1.41.0).
   - Efa-driver: efa-2.17.2-1
@@ -34,7 +34,7 @@ This file is used to list changes made in each version of the AWS ParallelCluste
 
 **BUG FIXES**
 - Fix a race condition in CloudWatch Agent startup that could cause nodes bootstrap failures.
-- Fix cluster id mismatch known issue by deleting the file `/var/spool/slurm.state/clustername` before configuring Slurm accounting.
+- Fix cluster id mismatch issue by deleting the file `/var/spool/slurm.state/clustername` before configuring Slurm accounting.
 
 3.13.2
 ------
