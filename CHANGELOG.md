@@ -7,21 +7,24 @@ This file is used to list changes made in each version of the AWS ParallelCluste
 ------
 
 **ENHANCEMENTS**
-- Add support for p6e-gb200 instances via capacity blocks.
-- Add `build-image` support for kernel 6.12 of Amazon Linux 2023. The official ParallelCluster Amazon Linux 2023 AMIs use kernel 6.12.
+- Add support for P6e-GB200 instances. ParallelCluster sets up Slurm topology plugin to handle P6e-GB200 UltraServers. See limitations section for important additional setup requirements.
+- Add `build-image` support for Amazon Linux 2023 AMIs based on kernel 6.12 (in addition to 6.1).
+
+**LIMITATIONS**
+- P6e-GB200 instances are only tested on Amazon Linux 2023, Ubuntu 22.04 and Ubuntu 24.04.
+- Using IMEX on P6e-GB200 requires additional setup. Please refer to <PLACE_HOLDER for the tutorial link>.
 
 **CHANGES**
 - Install nvidia-imex for all OSs except AL2.
-- Ubuntu 20.04 is no longer supported.
 - Remove `berkshelf`. All cookbooks are local and do not need `berkshelf` dependency management.
 - Remove `UnkillableStepTimeout` from slurm.conf and let slurm set this value.
 - Upgrade Slurm to version 24.11.6 (from 24.05.8).
-- Upgrade EFA installer to 1.43.2 (from 1.41.0).
-  - Efa-driver: efa-2.17.2-1
+- Upgrade EFA installer to 1.42.0 (from 1.41.0).
+  - Efa-driver: efa-2.15.3-1
   - Efa-config: efa-config-1.18-1
   - Efa-profile: efa-profile-1.7-1
-  - Libfabric-aws: libfabric-aws-2.1.0-5
-  - Rdma-core: rdma-core-58.0-1
+  - Libfabric-aws: libfabric-aws-2.1.0-3
+  - Rdma-core: rdma-core-57.0-1
   - Open MPI: openmpi40-aws-4.1.7-2 and openmpi50-aws-5.0.6-11
 - Upgrade Cinc Client to version 18.4.12 (from 18.2.7).
 - Upgrade NVIDIA driver to version 570.172.08 (from 570.86.15) for all OSs except AL2.
@@ -31,10 +34,14 @@ This file is used to list changes made in each version of the AWS ParallelCluste
 - Upgrade Python to 3.9.23 (from 3.9.20) for AL2.
 - Upgrade Intel MPI Library to 2021.16.0 (from 2021.13.1).
 - Upgrade DCV to version 2024.0-19030.
+- Upgrade the official ParallelCluster Amazon Linux 2023 AMIs to kernel 6.12 (from 6.1).
 
 **BUG FIXES**
 - Fix a race condition in CloudWatch Agent startup that could cause nodes bootstrap failures.
 - Fix cluster id mismatch issue by deleting the file `/var/spool/slurm.state/clustername` before configuring Slurm accounting.
+
+**DEPRECATIONS**
+- Ubuntu 20.04 is no longer supported.
 
 3.13.2
 ------
