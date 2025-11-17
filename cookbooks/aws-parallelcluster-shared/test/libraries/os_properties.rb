@@ -36,6 +36,10 @@ class OsProperties < Inspec.resource(1)
     inspec.os.name == 'ubuntu'
   end
 
+  def ubuntu_on_docker?
+    on_docker? && ubuntu?
+  end
+
   def redhat8?
     redhat? && inspec.os.release.to_i == 8
   end
