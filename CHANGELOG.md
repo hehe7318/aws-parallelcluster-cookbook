@@ -14,6 +14,7 @@ This file is used to list changes made in each version of the AWS ParallelCluste
    and achieve better performance at scale. 
 - Load kernel module `drm_client_lib` before installation of NVIDIA driver, if available on the kernel.
 - Reduce dependency footprint by installing the package `sssd-common` rather than `sssd`.
+- Disable Wayland in GDM on Ubuntu 22.04+ to ensure Xorg is used on headless GPU instances.
 - Upgrade Slurm to version 24.11.7 (from 24.11.6).
 - Upgrade Pmix to 5.0.9 (from 5.0.6).
 - Upgrade libjwt to version 1.18.4 (from 1.17.0) for all OSs except Amazon Linux 2.
