@@ -25,6 +25,9 @@ This file is used to list changes made in each version of the AWS ParallelCluste
   - Rdma-core: rdma-core-59.0-1
   - Open MPI: openmpi40-aws-4.1.7-2 and openmpi50-aws-5.0.8-11
 
+**BUG FIXES**
+- Fix incorrect timestamp parsing for chef-client.log in CloudWatch Agent configuration. The timestamp format now correctly matches Chef's output format `[YYYY-MM-DDTHH:MM:SS+TZ]`.
+
 3.14.0
 ------
 
