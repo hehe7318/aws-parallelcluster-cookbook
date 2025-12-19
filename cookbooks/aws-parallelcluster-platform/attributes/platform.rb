@@ -30,7 +30,6 @@ default['cluster']['nvidia']['imex']['force_configuration'] = false
 default['cluster']['nvidia']['nvlsm']['enabled'] = true
 
 # DCV
-# Set to true to skip DCV installation (useful for troubleshooting build issues)
 default['cluster']['dcv']['skip_install'] = false
 default['cluster']['dcv']['authenticator']['user'] = "dcvextauth"
 default['cluster']['dcv']['authenticator']['user_id'] = node['cluster']['reserved_base_uid'] + 3
