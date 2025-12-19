@@ -100,6 +100,10 @@ action_class do
 end
 
 action :setup do
+  if node['cluster']['dcv']['skip_install']
+    Chef::Log.warn("Skipping DCV installation because node['cluster']['dcv']['skip_install'] is set to true")
+    return
+  end
   return if dcv_installed?
   return if redhat_on_docker?
 
