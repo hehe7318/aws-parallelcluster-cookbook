@@ -657,11 +657,11 @@ describe 'dcv:setup' do
         end
       end
 
-      context "when skip_install is true" do
+      context "when install_enabled is false" do
         cached(:chef_run) do
           runner = runner(platform: platform, version: version, step_into: ['dcv']) do |node|
             node_setup.call(node)
-            node.override['cluster']['dcv']['skip_install'] = true
+            node.override['cluster']['dcv']['install_enabled'] = false
           end
           stubs_for_resource('dcv') do |res|
             allow(res).to receive(:dcv_sha256sum).and_return(checksum)
@@ -682,7 +682,7 @@ describe 'dcv:setup' do
           ConvergeDcv.setup(runner)
         end
 
-        it 'skips dcv installation' do
+        it 'does not install dcv when install_enabled is false' do
           is_expected.not_to create_if_missing_cookbook_file("#{scripts_dir}/pcluster_dcv_connect.sh")
           is_expected.not_to create_group(authenticator_group)
           is_expected.not_to create_user(authenticator_user)

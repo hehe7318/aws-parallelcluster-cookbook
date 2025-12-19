@@ -30,7 +30,7 @@ default['cluster']['nvidia']['imex']['force_configuration'] = false
 default['cluster']['nvidia']['nvlsm']['enabled'] = true
 
 # DCV
-default['cluster']['dcv']['skip_install'] = false
+default['cluster']['dcv']['install_enabled'] = true
 default['cluster']['dcv']['authenticator']['user'] = "dcvextauth"
 default['cluster']['dcv']['authenticator']['user_id'] = node['cluster']['reserved_base_uid'] + 3
 default['cluster']['dcv']['authenticator']['group'] = node['cluster']['dcv']['authenticator']['user']

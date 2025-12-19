@@ -100,8 +100,8 @@ action_class do
 end
 
 action :setup do
-  if node['cluster']['dcv']['skip_install']
-    Chef::Log.warn("Skipping DCV installation because node['cluster']['dcv']['skip_install'] is set to true")
+  unless node['cluster']['dcv']['install_enabled']
+    Chef::Log.warn("Skipping DCV installation because node['cluster']['dcv']['install_enabled'] is set to false")
     return
   end
   return if dcv_installed?
