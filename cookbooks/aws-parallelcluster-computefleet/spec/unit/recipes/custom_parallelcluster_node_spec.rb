@@ -45,7 +45,7 @@ describe 'aws-parallelcluster-computefleet::custom_parallelcluster_node' do
   else
     custom_package_url=#{custom_node_s3_url}
   fi
-  curl --retry 3 -L -o aws-parallelcluster-node.tgz ${custom_package_url}
+  curl --retry 10 --retry-all-errors -L -o aws-parallelcluster-node.tgz ${custom_package_url}
   rm -fr aws-parallelcluster-custom-node
   mkdir aws-parallelcluster-custom-node
   tar -xzf aws-parallelcluster-node.tgz --directory aws-parallelcluster-custom-node
