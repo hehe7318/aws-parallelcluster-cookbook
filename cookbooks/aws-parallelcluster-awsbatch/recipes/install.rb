@@ -40,7 +40,7 @@ if !node['cluster']['custom_awsbatchcli_package'].nil? && !node['cluster']['cust
       else
         custom_package_url=#{node['cluster']['custom_awsbatchcli_package']}
       fi
-      curl --retry 3 -L -o aws-parallelcluster.tgz ${custom_package_url}
+      curl --retry 9 --retry-all-errors -L -o aws-parallelcluster.tgz ${custom_package_url}
       mkdir aws-parallelcluster-awsbatch-cli
       tar -xzf aws-parallelcluster.tgz --directory aws-parallelcluster-awsbatch-cli
       cd aws-parallelcluster-awsbatch-cli/*aws-parallelcluster*
