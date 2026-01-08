@@ -112,8 +112,13 @@ action_class do
       directory dcv_gl_deps_dir
 
       # Use --resolve to download all transitive dependencies
+      download_cmd = if el_string == 'amzn2'
+                       "yum install --downloadonly --downloaddir=#{dcv_gl_deps_dir} #{dcv_gl_package}"
+                     else
+                       "dnf download --destdir=#{dcv_gl_deps_dir} --resolve #{dcv_gl_package}"
+                     end
       execute 'download dcv-gl dependencies' do
-        command "dnf download --destdir=#{dcv_gl_deps_dir} --resolve #{dcv_gl_package}"
+        command download_cmd
         retries 3
         retry_delay 5
       end
