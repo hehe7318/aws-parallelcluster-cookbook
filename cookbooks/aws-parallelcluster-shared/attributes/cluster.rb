@@ -9,6 +9,12 @@ default['cluster']['shared_dir_login_nodes'] = "#{node['cluster']['base_dir']}/s
 default['cluster']['log_base_dir'] = '/var/log/parallelcluster'
 default['cluster']['etc_dir'] = '/etc/parallelcluster'
 
+# Cluster Updates
+default['cluster']['update']['trigger_file'] = "#{node['cluster']['shared_dir']}/update_trigger"
+default['cluster']['update']['checkpoint_file'] = "#{node['cluster']['scripts_dir']}/update_checkpoint"
+default['cluster']['update']['cluster_readiness_check_enabled'] = 'true'
+default['cluster']['in_place_update_on_fleet_enabled'] = 'true'
+
 # Slurm_plugin_dir is used by slurm cookbook and custom_actions recipe
 default['cluster']['slurm_plugin_dir'] = "#{node['cluster']['etc_dir']}/slurm_plugin"
 
@@ -34,6 +40,3 @@ default['cluster']["directory_service"]["enabled"] = 'false'
 
 # Default NFS mount options
 default['cluster']['nfs']['hard_mount_options'] = 'hard,_netdev,noatime'
-
-# Cluster Updates
-default['cluster']['in_place_update_on_fleet_enabled'] = 'true'
