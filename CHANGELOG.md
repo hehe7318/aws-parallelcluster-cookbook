@@ -10,6 +10,13 @@ This file is used to list changes made in each version of the AWS ParallelCluste
 - Replace cfn-hup in compute nodes with systemd timer to support in place updates in order to improve performance.
   This new mechanism relies on shared storage to sync updates between the head node and compute nodes.
 - Mitigate the risk of transient build-image failures in RHEL and Rocky caused by out-of-sync repo mirrors.
+- Upgrade EFA installer to 1.46.0 (from 1.44.0).
+  - Efa-driver: efa-2.17.3-1
+  - Efa-config: efa-config-1.18-1
+  - Efa-profile: efa-profile-1.7-1
+  - Libfabric-aws: libfabric-aws-2.3.1-1
+  - Rdma-core: rdma-core-60.0-1
+  - Open MPI: openmpi40-aws-4.1.7-2 and openmpi50-aws-5.0.8-11
 
 **BUG FIXES**
 - Fix timestamp formats in CloudWatch log configuration to let CloudWatch parse the correct timestamps.
