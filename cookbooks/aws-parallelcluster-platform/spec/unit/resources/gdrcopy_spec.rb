@@ -136,7 +136,7 @@ describe 'gdrcopy:gdrcopy_version' do
         expected_gdrcopy_version = if platform == "centos"
                                      "2.3.1"
                                    else
-                                     "2.4.4"
+                                     "2.5.1"
                                    end
         expect(resource.gdrcopy_version).to eq(expected_gdrcopy_version)
       end
@@ -160,7 +160,7 @@ describe 'gdrcopy:gdrcopy_checksum' do
         expected_gdrcopy_checksum = if platform == "centos"
                                       "59b3cc97a4fc6008a5407506d9e67ecc4144cfad61c261217fabcb671cd30ca8"
                                     else
-                                      "8802f7bc4a589a610118023bdcdd83c10a56dea399acf6eeaac32e8cc10739a8"
+                                      "c6d5ebb7dabb89d798f27609511735595004da73af28d93ac041bb5290c4cbec"
                                     end
         expect(resource.gdrcopy_checksum).to eq(expected_gdrcopy_checksum)
       end
@@ -186,12 +186,12 @@ describe 'gdrcopy:setup' do
 
     context "on #{platform}#{version} when gdrcopy enabled" do
       cached(:sources_dir) { 'sources_dir' }
-      cached(:gdrcopy_version) { platform == 'centos' ? '2.3.1' : '2.4.4' }
+      cached(:gdrcopy_version) { platform == 'centos' ? '2.3.1' : '2.5.1' }
       cached(:gdrcopy_checksum) do
         if platform == 'centos'
           '59b3cc97a4fc6008a5407506d9e67ecc4144cfad61c261217fabcb671cd30ca8'
         else
-          '8802f7bc4a589a610118023bdcdd83c10a56dea399acf6eeaac32e8cc10739a8'
+          'c6d5ebb7dabb89d798f27609511735595004da73af28d93ac041bb5290c4cbec'
         end
       end
       cached(:gdrcopy_service) { platform == 'ubuntu' ? 'gdrdrv' : 'gdrcopy' }
@@ -274,10 +274,10 @@ describe 'gdrcopy:setup' do
 
         if platform == 'ubuntu'
           expect(installation_code).to match(%r{CUDA=/usr/local/cuda ./build-deb-packages.sh})
-          expect(installation_code).to match(/dpkg -i gdrdrv-dkms_#{gdrcopy_version}_#{gdrcopy_arch}.#{gdrcopy_platform}.deb/)
-          expect(installation_code).to match(/dpkg -i libgdrapi_#{gdrcopy_version}_#{gdrcopy_arch}.#{gdrcopy_platform}.deb/)
-          expect(installation_code).to match(/dpkg -i gdrcopy-tests_#{gdrcopy_version}_#{gdrcopy_arch}.#{gdrcopy_platform}\+cuda\*.deb/)
-          expect(installation_code).to match(/dpkg -i gdrcopy_#{gdrcopy_version}_#{gdrcopy_arch}.#{gdrcopy_platform}.deb/)
+          expect(installation_code).to match(/dpkg -i gdrdrv-dkms_#{gdrcopy_version}-1_#{gdrcopy_arch}.#{gdrcopy_platform}.deb/)
+          expect(installation_code).to match(/dpkg -i libgdrapi_#{gdrcopy_version}-1_#{gdrcopy_arch}.#{gdrcopy_platform}.deb/)
+          expect(installation_code).to match(/dpkg -i gdrcopy-tests_#{gdrcopy_version}-1_#{gdrcopy_arch}.#{gdrcopy_platform}\+cuda\*.deb/)
+          expect(installation_code).to match(/dpkg -i gdrcopy_#{gdrcopy_version}-1_#{gdrcopy_arch}.#{gdrcopy_platform}.deb/)
         elsif platform == 'centos'
           expect(installation_code).to match(%r{CUDA=/usr/local/cuda ./build-rpm-packages.sh})
           expect(installation_code).to match(/rpm -q gdrcopy-kmod-#{gdrcopy_version}-1dkms || rpm -Uvh gdrcopy-kmod-#{gdrcopy_version}-1dkms.noarch.#{gdrcopy_platform}.rpm/)

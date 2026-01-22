@@ -32,7 +32,7 @@ end
 action :configure do
   # Start nvidia fabric manager on NVSwitch enabled systems, except for GB200 which does not need it
   if get_nvswitches > 1 && !is_gb200_node?
-    service 'nvidia-fabricmanager' do
+    service "#{fabric_manager_package}" do
       action %i(start enable)
       supports status: true
     end
@@ -50,6 +50,14 @@ end
 
 def _nvidia_driver_version
   nvidia_driver_version || node['cluster']['nvidia']['driver_version']
+end
+
+def fabric_manager_package
+  'nvidia-fabricmanager'
+end
+
+def fabric_manager_version
+  _nvidia_driver_version
 end
 
 # Get number of nv switches
