@@ -34,10 +34,9 @@ describe 'aws-parallelcluster-slurm::install_jwt' do
         runner.converge(described_recipe)
       end
 
-      # TODO: Temporarily updated for GitHub URL testing, revert after S3 upload
       it 'downloads libjwt' do
         is_expected.to create_if_missing_remote_file("#{cluster_sources_dir}/libjwt-#{jwt_version}.tar.gz").with(
-          source: "https://github.com/benmcollins/libjwt/archive/refs/tags/v#{jwt_version}.tar.gz",
+          source: "#{cluster_artifacts_s3_url}/dependencies/jwt/v#{jwt_version}.tar.gz",
           mode: '0644',
           retries: 3,
           retry_delay: 5,
@@ -54,7 +53,7 @@ describe 'aws-parallelcluster-slurm::install_jwt' do
     tar xf #{"#{cluster_sources_dir}/libjwt-#{jwt_version}.tar.gz"} --no-same-owner
     cd libjwt-#{jwt_version}
     autoreconf --force --install
-    ./configure --without-gnutls --prefix=/opt/libjwt
+    ./configure --prefix=/opt/libjwt
     CORES=$(grep processor /proc/cpuinfo | wc -l)
     make -j $CORES
     sudo make install
