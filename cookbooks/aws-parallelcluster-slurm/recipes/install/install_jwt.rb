@@ -16,7 +16,9 @@
 # limitations under the License.
 
 jwt_version = node['cluster']['jwt']['version']
-jwt_url = "#{node['cluster']['jwt']['base_url']}/v#{jwt_version}.tar.gz"
+# jwt_url = "#{node['cluster']['jwt']['base_url']}/v#{jwt_version}.tar.gz"
+# TODO: Hardcoded URL for testing, revert to S3 URL after upload
+jwt_url = "https://github.com/benmcollins/libjwt/archive/refs/tags/v#{jwt_version}.tar.gz"
 jwt_tarball = "#{node['cluster']['sources_dir']}/libjwt-#{jwt_version}.tar.gz"
 
 remote_file jwt_tarball do
