@@ -34,9 +34,10 @@ describe 'aws-parallelcluster-slurm::install_jwt' do
         runner.converge(described_recipe)
       end
 
+      # TODO: Temporarily updated for GitHub URL testing, revert after S3 upload
       it 'downloads libjwt' do
         is_expected.to create_if_missing_remote_file("#{cluster_sources_dir}/libjwt-#{jwt_version}.tar.gz").with(
-          source: "#{cluster_artifacts_s3_url}/dependencies/jwt/v#{jwt_version}.tar.gz",
+          source: "https://github.com/benmcollins/libjwt/archive/refs/tags/v#{jwt_version}.tar.gz",
           mode: '0644',
           retries: 3,
           retry_delay: 5,
