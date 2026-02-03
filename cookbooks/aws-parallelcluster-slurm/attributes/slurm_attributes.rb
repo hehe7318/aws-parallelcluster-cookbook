@@ -15,6 +15,7 @@ default['cluster']['enable_nss_slurm'] = node['cluster']['directory_service']['e
 # PMIX Version and Checksum
 default['cluster']['pmix']['version'] = '5.0.10'
 default['cluster']['pmix']['sha256'] = '7c0be0b5f85cc605fc51b44642fab72494e739ef9c1aa52a8741b847d6907b43'
+default['cluster']['pmix']['base_url'] = "#{node['cluster']['artifacts_s3_url']}/dependencies/pmix"
 
 # Slurmdbd
 default['cluster']['slurmdbd_service_enabled'] = "true"
