@@ -260,7 +260,7 @@ service 'slurmctld' do
   not_if { ::File.exist?(node['cluster']['previous_cluster_config_path']) && !are_queues_updated? && !are_bulk_custom_slurm_settings_updated? }
 end
 
-chef_sleep '15'
+chef_sleep '60'
 
 # The slurmctld service does not return an error code to `systemctl start slurmctld`, so
 # we must explicitly check the status of the service to capture failures
