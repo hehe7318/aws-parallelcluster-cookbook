@@ -270,11 +270,60 @@ execute "check slurmctld status" do
   retry_delay 2
 end
 
+# Debug: Print topology info BEFORE scontrol reconfigure
+ruby_block "debug_topology_before_reconfigure" do
+  block do
+    Chef::Log.info("=== DEBUG: Topology info BEFORE scontrol reconfigure ===")
+
+    # Print scontrol show topology
+    topology_output = shell_out("#{node['cluster']['slurm']['install_dir']}/bin/scontrol show topology").stdout
+    Chef::Log.info("scontrol show topology output:\n#{topology_output}")
+
+    # Print slurm_parallelcluster_topology.conf content
+    topology_conf_path = "#{node['cluster']['slurm']['install_dir']}/etc/slurm_parallelcluster_topology.conf"
+    if ::File.exist?(topology_conf_path)
+      topology_conf_content = ::File.read(topology_conf_path)
+      Chef::Log.info("#{topology_conf_path} content:\n#{topology_conf_content}")
+    else
+      Chef::Log.info("#{topology_conf_path} does not exist")
+    end
+
+    # Also print topology.conf content
+    topology_conf_path2 = "#{node['cluster']['slurm']['install_dir']}/etc/topology.conf"
+    if ::File.exist?(topology_conf_path2)
+      topology_conf_content2 = ::File.read(topology_conf_path2)
+      Chef::Log.info("#{topology_conf_path2} content:\n#{topology_conf_content2}")
+    else
+      Chef::Log.info("#{topology_conf_path2} does not exist")
+    end
+
+    Chef::Log.info("=== END DEBUG: Topology info BEFORE scontrol reconfigure ===")
+  end
+  not_if { ::File.exist?(node['cluster']['previous_cluster_config_path']) && !are_queues_updated? && !are_bulk_custom_slurm_settings_updated? }
+end
+
 execute SCONTROL_RECONFIGURE_RESOURCE_NAME do
   command "#{node['cluster']['slurm']['install_dir']}/bin/scontrol reconfigure"
   retries 3
   retry_delay 5
   timeout node['cluster']['slurm']['reconfigure_timeout']
+  not_if { ::File.exist?(node['cluster']['previous_cluster_config_path']) && !are_queues_updated? && !are_bulk_custom_slurm_settings_updated? }
+end
+
+# Debug: Print topology info AFTER scontrol reconfigure (wait a few seconds first)
+ruby_block "debug_topology_after_reconfigure" do
+  block do
+    Chef::Log.info("=== DEBUG: Waiting 10 seconds after scontrol reconfigure ===")
+    sleep(10)
+
+    Chef::Log.info("=== DEBUG: Topology info AFTER scontrol reconfigure ===")
+
+    # Print scontrol show topology
+    topology_output = shell_out("#{node['cluster']['slurm']['install_dir']}/bin/scontrol show topology").stdout
+    Chef::Log.info("scontrol show topology output:\n#{topology_output}")
+
+    Chef::Log.info("=== END DEBUG: Topology info AFTER scontrol reconfigure ===")
+  end
   not_if { ::File.exist?(node['cluster']['previous_cluster_config_path']) && !are_queues_updated? && !are_bulk_custom_slurm_settings_updated? }
 end
 
