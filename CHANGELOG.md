@@ -38,6 +38,12 @@ This file is used to list changes made in each version of the AWS ParallelCluste
 - Fix an issue that was blocking the logging of slurm health check events.
 - Fix cluster creation failure without Internet access when GPU instances and DCV are used.
 
+3.14.2
+------
+
+**CHANGES**
+- Upgrade munge to version 0.5.18 (from 0.5.16) to address [CVE-2026-25506](https://github.com/dun/munge/security/advisories/GHSA-r9cr-jf4v-75gh).
+
 3.14.1
 ------
 
