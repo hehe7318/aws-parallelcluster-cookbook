@@ -7,10 +7,11 @@ This file is used to list changes made in each version of the AWS ParallelCluste
 ------
 
 **CHANGES**
-- Replace cfn-hup in compute nodes with systemd timer to support in place updates in order to improve performance.
+- Replace cfn-hup in compute nodes with systemd timer to support in place updates in order to improve MPI collective performance at scale.
   This new mechanism relies on shared storage to sync updates between the head node and compute nodes.
+- Disable dnf-makecache.timer to improve MPI collective performance on RHEL/Rocky at scale.
 - Mitigate the risk of transient build-image failures in RHEL and Rocky caused by out-of-sync repo mirrors.
-- Upgrade Slurm to version 25.11.2 (from 24.11.7).
+- Upgrade Slurm to version 25.11.3 (from 24.11.7).
 - Upgrade Pmix to 5.0.10 (from 5.0.6).
 - Upgrade EFA installer to 1.46.0 (from 1.44.0).
   - Efa-driver: efa-2.17.3-1
@@ -31,12 +32,20 @@ This file is used to list changes made in each version of the AWS ParallelCluste
 - Upgrade mysql-community-client to version 8.4.8 (from 8.0.39) for all OSs except Amazon Linux 2.
 - Upgrade Intel MPI Library to 2021.17.2 (from 2021.16.0).
 - Upgrade Cinc Client to version 18.8.54 (from 18.7.10).
-- Always start clustermgtd on cluster update failure, regardless the failure condition.
+- Always start clustermgtd on cluster update and compute fleet status update failure, regardless the failure condition.
 
 **BUG FIXES**
 - Fix timestamp formats in CloudWatch log configuration to let CloudWatch parse the correct timestamps.
 - Fix an issue that was blocking the logging of slurm health check events.
 - Fix cluster creation failure without Internet access when GPU instances and DCV are used.
+- Fix build-image failure during ubuntu-desktop installation on a Ubuntu parent image with outdated OS packages.
+- Prevent unexpected execution of cluster update failure recovery on AWS Batch.
+
+3.14.2
+------
+
+**CHANGES**
+- Upgrade munge to version 0.5.18 (from 0.5.16) to address [CVE-2026-25506](https://github.com/dun/munge/security/advisories/GHSA-r9cr-jf4v-75gh).
 
 3.14.1
 ------

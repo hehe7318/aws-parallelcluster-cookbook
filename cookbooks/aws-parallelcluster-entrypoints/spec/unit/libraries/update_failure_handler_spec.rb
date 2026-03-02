@@ -15,7 +15,7 @@ require_relative '../../spec_helper'
 require_relative '../../../libraries/update_failure_handler'
 
 describe ErrorHandlers::UpdateFailureHandler do
-  let(:handler) { described_class.new }
+  let(:handler) { described_class.new(cleanup_dna_files: true, start_clustermgtd: true) }
   let(:exception) { StandardError.new('Test error') }
   let(:resource1) { double('resource1', to_s: 'file[/tmp/test]') }
   let(:updated_resources) { [resource1] }
@@ -29,6 +29,7 @@ describe ErrorHandlers::UpdateFailureHandler do
     {
       'cluster' => {
         'node_type' => node_type,
+        'scheduler' => scheduler,
         'system_pyenv_root' => pyenv_root,
         'python-version' => python_version,
         'scripts_dir' => scripts_dir,
@@ -37,6 +38,7 @@ describe ErrorHandlers::UpdateFailureHandler do
     }
   end
   let(:node_type) { 'HeadNode' }
+  let(:scheduler) { 'slurm' }
   let(:run_status) { double('run_status', exception: exception, updated_resources: updated_resources, node: node) }
   let(:command_runner) { instance_double(ErrorHandlers::CommandRunner) }
 
@@ -54,6 +56,12 @@ describe ErrorHandlers::UpdateFailureHandler do
     end
   end
 
+  describe '#scheduler' do
+    it 'returns the scheduler from cluster attributes' do
+      expect(handler.scheduler).to eq('slurm')
+    end
+  end
+
   describe '#cookbook_virtualenv_path' do
     it 'constructs the correct virtualenv path' do
       expect(handler.cookbook_virtualenv_path).to eq(virtualenv_path)
@@ -61,7 +69,7 @@ describe ErrorHandlers::UpdateFailureHandler do
   end
 
   describe '#report' do
-    context 'when node type is HeadNode' do
+    context 'when node type is HeadNode and scheduler is slurm' do
       it 'writes error report and runs recovery commands' do
         expect(handler).to receive(:write_error_report)
         expect(handler).to receive(:run_recovery)
@@ -83,7 +91,32 @@ describe ErrorHandlers::UpdateFailureHandler do
         expect(handler).not_to receive(:write_error_report)
         expect(handler).not_to receive(:run_recovery)
         allow(Chef::Log).to receive(:info)
-        expect(Chef::Log).to receive(:info).with(/Node type is ComputeFleet/)
+        expect(Chef::Log).to receive(:info).with(/Node type is ComputeFleet and scheduler is slurm, recovery from update failure only executes on the HeadNode with slurm scheduler/)
+        handler.report
+      end
+    end
+
+    context 'when scheduler is not slurm' do
+      let(:scheduler) { 'awsbatch' }
+
+      it 'skips recovery and returns early' do
+        expect(handler).not_to receive(:write_error_report)
+        expect(handler).not_to receive(:run_recovery)
+        allow(Chef::Log).to receive(:info)
+        expect(Chef::Log).to receive(:info).with(/Node type is HeadNode and scheduler is awsbatch, recovery from update failure only executes on the HeadNode with slurm scheduler/)
+        handler.report
+      end
+    end
+
+    context 'when node type is not HeadNode and scheduler is not slurm' do
+      let(:node_type) { 'ComputeFleet' }
+      let(:scheduler) { 'awsbatch' }
+
+      it 'skips recovery and returns early' do
+        expect(handler).not_to receive(:write_error_report)
+        expect(handler).not_to receive(:run_recovery)
+        allow(Chef::Log).to receive(:info)
+        expect(Chef::Log).to receive(:info).with(/Node type is ComputeFleet and scheduler is awsbatch, recovery from update failure only executes on the HeadNode with slurm scheduler/)
         handler.report
       end
     end
@@ -99,10 +132,28 @@ describe ErrorHandlers::UpdateFailureHandler do
   end
 
   describe '#run_recovery' do
-    it 'cleans up DNA files and starts clustermgtd unconditionally' do
-      expect(handler).to receive(:cleanup_dna_files).ordered
-      expect(handler).to receive(:start_clustermgtd).ordered
-      handler.run_recovery
+    { cleanup_dna_files: :cleanup_dna_files, start_clustermgtd: :start_clustermgtd }.each do |flag, method|
+      [true, false].each do |enabled|
+        context "when #{flag} is #{enabled}" do
+          let(:handler) { described_class.new(flag => enabled) }
+
+          before do
+            allow(handler).to receive(:run_status).and_return(run_status)
+            allow(handler).to receive(:action_collection).and_return(action_collection)
+            allow(handler).to receive(:command_runner).and_return(command_runner)
+            allow(Chef::Log).to receive(:info)
+          end
+
+          it "#{enabled ? 'calls' : 'does not call'} #{method}" do
+            if enabled
+              expect(handler).to receive(method)
+            else
+              expect(handler).not_to receive(method)
+            end
+            handler.run_recovery
+          end
+        end
+      end
     end
   end
 
