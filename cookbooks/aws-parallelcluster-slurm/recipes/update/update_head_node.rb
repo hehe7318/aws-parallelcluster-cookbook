@@ -215,8 +215,8 @@ ruby_block "Update Slurm Accounting" do
       run_context.include_recipe "aws-parallelcluster-slurm::config_slurm_accounting"
     end
   end
-  only_if { ::File.exist?(node['cluster']['previous_cluster_config_path']) && is_slurm_database_updated? }
-end unless on_docker?
+  only_if { !on_docker? && ::File.exist?(node['cluster']['previous_cluster_config_path']) && is_slurm_database_updated? }
+end
 
 # Cover the following two scenarios:
 # - a cluster without login nodes is updated to have login nodes;
@@ -268,6 +268,13 @@ execute "check slurmctld status" do
   command "systemctl is-active --quiet slurmctld.service"
   retries 5
   retry_delay 2
+end
+
+ruby_block "Bootstrap Slurm Accounting Users" do
+  block do
+    run_context.include_recipe "aws-parallelcluster-slurm::bootstrap_slurm_accounting"
+  end
+  only_if { !on_docker? && ::File.exist?(node['cluster']['previous_cluster_config_path']) && is_slurm_database_updated? }
 end
 
 execute SCONTROL_RECONFIGURE_RESOURCE_NAME do
