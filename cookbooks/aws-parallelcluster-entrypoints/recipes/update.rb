@@ -30,3 +30,8 @@ include_recipe 'aws-parallelcluster-slurm::update' if node['cluster']['scheduler
 if is_custom_node?
   include_recipe 'aws-parallelcluster-computefleet::update_parallelcluster_node'
 end
+
+# Clean up update failure marker on success
+file "#{node['cluster']['shared_dir']}/update_failed_marker" do
+  action :delete
+end
