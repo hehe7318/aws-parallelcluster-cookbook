@@ -12,7 +12,7 @@ This file is used to list changes made in each version of the AWS ParallelCluste
 - Stop cleaning up shared DNA files after a successful head node update or rollback.
 - Disable dnf-makecache.timer to improve MPI collective performance on RHEL/Rocky at scale.
 - Mitigate the risk of transient build-image failures in RHEL and Rocky caused by out-of-sync repo mirrors.
-- Upgrade Slurm to version 25.11.3 (from 24.11.7).
+- Upgrade Slurm to version 25.11.4 (from 24.11.7).
 - Upgrade Pmix to 5.0.10 (from 5.0.6).
 - Upgrade EFA installer to 1.47.0 (from 1.44.0).
   - Efa-driver: efa-3.0.0
