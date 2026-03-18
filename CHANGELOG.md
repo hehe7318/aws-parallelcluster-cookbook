@@ -6,12 +6,16 @@ This file is used to list changes made in each version of the AWS ParallelCluste
 3.15.0
 ------
 
-**CHANGES**
-- Replace cfn-hup in compute nodes with systemd timer to support in place updates in order to improve MPI collective performance at scale.
+**ENHANCEMENTS**
+- Add support for p6-b300 instances for all OSs except AL2.
+- Replace cfn-hup in compute nodes with systemd timer to support in place updates in order to improve performance for tightly coupled worloads at scale.
   This new mechanism relies on shared storage to sync updates between the head node and compute nodes.
-- Stop cleaning up shared DNA files after a successful head node update, a successful rollback, or a failed rollback.
-- Disable dnf-makecache.timer to improve MPI collective performance on RHEL/Rocky at scale.
-- Mitigate the risk of transient build-image failures in RHEL and Rocky caused by out-of-sync repo mirrors.
+- Disable `dnf-makecache.timer` to improve performance for tightly coupled worloads on RHEL/Rocky at scale.
+
+**CHANGES**
+- Reduce transient build-image failures in RHEL and Rocky caused by out-of-sync repo mirrors by resetting metadata upon retry.
+- Always start clustermgtd on cluster update and compute fleet status update failure, regardless the failure condition.
+- Improve resiliency of the cluster update rollback workflow.
 - Upgrade Slurm to version 25.11.4 (from 24.11.7).
 - Upgrade Pmix to 5.0.10 (from 5.0.6).
 - Upgrade EFA installer to 1.47.0 (from 1.44.0).
@@ -34,15 +38,18 @@ This file is used to list changes made in each version of the AWS ParallelCluste
 - Upgrade Intel MPI Library to 2021.17.2 (from 2021.16.0).
 - Upgrade Cinc Client to version 18.8.54 (from 18.7.10).
 - Upgrade amazon-efs-utils to version 2.4.0 (from v2.1.0) for Amazon Linux AMI's.
-- Always start clustermgtd on cluster update and compute fleet status update failure, regardless the failure condition.
 
 **BUG FIXES**
-- Fix timestamp formats in CloudWatch log configuration to let CloudWatch parse the correct timestamps.
-- Fix an issue that was blocking the logging of slurm health check events.
-- Fix cluster creation failure without Internet access when GPU instances and DCV are used.
+- Fix a failure when creating a cluster with GPU instances and with DCV enabled but without internet access.
 - Fix build-image failure during ubuntu-desktop installation on a Ubuntu parent image with outdated OS packages.
-- Prevent cluster update failures caused by nodes that completed their bootstrap during the update workflow.
-- Prevent unexpected execution of cluster update failure recovery on AWS Batch.
+- Fix the CloudWatch agent configuration to ensure proper parsing of timestamps across all log files.
+- Fix logging configuration to capture all Slurm health check events (updating log level from WARNING to INFO to prevent missing log entries).
+- Improve cluster update resiliency by ensuring the update does not fail on nodes completing the bootstrap during the update.
+- Prevent cluster update failure recovery process from running on AWS Batch clusters. This recovery mechanism should only execute on Slurm clusters.
+
+**DEPRECATIONS**
+- This is the last ParallelCluster release supporting Amazon Linux 2, as Amazon Linux 2 will reach end of support on June 30, 2026.
+- This is the last ParallelCluster release supporting AWS Batch CLI. Starting with v3.16.0, ParallelCluster will no longer support AWS Batch as a scheduler.
 
 3.14.2
 ------
