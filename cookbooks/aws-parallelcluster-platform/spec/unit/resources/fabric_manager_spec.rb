@@ -218,6 +218,7 @@ end
 
 describe 'fabric_manager:configure' do
   cached(:nvidia_driver_version) { 'nvidia_driver_version' }
+  cached(:fabric_manager_service) { 'nvidia-fabricmanager' }
   [true, false].each do |is_gb200|
     for_all_oses do |platform, version|
       context "on #{platform}#{version} on #{is_gb200} gb200 node" do
@@ -242,11 +243,11 @@ describe 'fabric_manager:configure' do
 
           if is_gb200
             it 'does not start nvidia-fabricmanager service' do
-              is_expected.not_to start_service("#{fabric_manager_package}")
+              is_expected.not_to start_service(fabric_manager_service)
             end
           else
             it 'starts nvidia-fabricmanager service' do
-              is_expected.to start_service("#{fabric_manager_package}")
+              is_expected.to start_service(fabric_manager_service)
                 .with_action(%i(start enable))
                 .with_supports({ status: true })
             end
@@ -266,7 +267,7 @@ describe 'fabric_manager:configure' do
           end
 
           it "doesn't start nvidia-fabricmanager service" do
-            is_expected.not_to start_service("#{fabric_manager_package}")
+            is_expected.not_to start_service(fabric_manager_service)
           end
         end
       end
@@ -275,10 +276,9 @@ describe 'fabric_manager:configure' do
 end
 
 describe 'fabric_manager:enable_fabric_manager?' do
+  cached(:fabric_manager_service) { 'nvidia-fabricmanager' }
   for_all_oses do |platform, version|
     context "on #{platform}#{version}" do
-      cached(:fabric_manager_package) { platform == 'amazon' && version == '2' ? 'nvidia-fabric-manager' : 'nvidia-fabricmanager' }
-
       context 'when multiple GPUs with NVSwitches' do
         cached(:chef_run) do
           stubs_for_provider('fabric_manager') do |res|
@@ -292,7 +292,7 @@ describe 'fabric_manager:enable_fabric_manager?' do
         end
 
         it 'enables fabric manager service' do
-          is_expected.to start_service(fabric_manager_package)
+          is_expected.to start_service(fabric_manager_service)
         end
       end
 
@@ -309,7 +309,7 @@ describe 'fabric_manager:enable_fabric_manager?' do
         end
 
         it 'does not enable fabric manager service' do
-          is_expected.not_to start_service(fabric_manager_package)
+          is_expected.not_to start_service(fabric_manager_service)
         end
       end
     end

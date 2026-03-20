@@ -32,7 +32,7 @@ end
 action :configure do
   # Start nvidia fabric manager on NVSwitch enabled systems, except for GB200 which does not need it.
   if enable_fabric_manager? && !is_gb200_node?
-    service "#{fabric_manager_package}" do
+    service fabric_manager_service do
       action %i(start enable)
       supports status: true
     end
@@ -53,6 +53,14 @@ def _nvidia_driver_version
 end
 
 def fabric_manager_package
+  'nvidia-fabricmanager'
+end
+
+# The systemd service name for fabric manager.
+# On AL2, the RPM package is named 'nvidia-fabric-manager' but the
+# systemd service unit is 'nvidia-fabricmanager' (no hyphen between
+# 'fabric' and 'manager'), matching all other platforms.
+def fabric_manager_service
   'nvidia-fabricmanager'
 end
 
