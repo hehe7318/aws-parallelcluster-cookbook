@@ -11,6 +11,7 @@ default['conditions']['arm_pl_supported'] = arm_instance?
 
 # Enroot
 default['cluster']['enroot']['version'] = '3.4.1'
+default['cluster']['enroot']['caps_base_url'] = "#{node['cluster']['artifacts_s3_url']}/dependencies/enroot"
 default['cluster']['enroot']['temporary_dir'] = '/run/enroot'
 default['cluster']['enroot']['persistent_dir'] = '/var/enroot'
 
@@ -24,6 +25,7 @@ if platform?('amazon') && node['platform_version'] == "2"
 end
 default['cluster']['nvidia']['driver_base_url'] = "#{node['cluster']['artifacts_s3_url']}/dependencies/nvidia_driver"
 default['cluster']['nvidia']['dcgm_base_url'] = "#{node['cluster']['artifacts_s3_url']}/dependencies/nvidia_dcgm"
+default['cluster']['nvidia']['fabricmanager']['base_url'] = "#{node['cluster']['artifacts_s3_url']}/dependencies/nvidia_fabric"
 
 # CUDA
 default['cluster']['nvidia']['cuda']['base_url'] = "#{node['cluster']['artifacts_s3_url']}/dependencies/cuda"
