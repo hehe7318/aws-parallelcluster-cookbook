@@ -28,10 +28,6 @@ end
 # Retrieve compute and head node info from dynamo db (Slurm only)
 #
 def dynamodb_info(aws_connection_timeout_seconds: 10, aws_read_timeout_seconds: 30, shell_timeout_seconds: 60)
-  ddb_hint = "This usually means the compute node cannot reach DynamoDB. " \
-             "If the compute subnet has no internet egress (NAT/IGW), ensure a DynamoDB VPC gateway endpoint " \
-             "is configured and attached to the subnet's route table."
-
   cmd = Mixlib::ShellOut.new("#{cookbook_virtualenv_path}/bin/aws dynamodb " \
                       "--region #{node['cluster']['region']} query --table-name #{node['cluster']['slurm_ddb_table']} " \
                       "--index-name InstanceId --key-condition-expression 'InstanceId = :instanceid' " \
@@ -47,23 +43,19 @@ def dynamodb_info(aws_connection_timeout_seconds: 10, aws_read_timeout_seconds: 
     cmd.run_command
   rescue Mixlib::ShellOut::CommandTimeout
     raise "Failed to query DynamoDB for compute node info: the aws cli call did not return in time " \
-          "and was terminated. #{ddb_hint}"
-  end
-
-  if cmd.error?
-    raise "Failed to query DynamoDB for compute node info. " \
-          "exit_code=#{cmd.exitstatus}, stderr=#{cmd.stderr.strip}. #{ddb_hint}"
+          "and was terminated. This usually means the compute node cannot reach DynamoDB. " \
+          "If the compute subnet has no internet egress (NAT/IGW), ensure a DynamoDB VPC gateway endpoint " \
+          "is configured and attached to the subnet's route table."
   end
 
   output = cmd.stdout.strip
-  if output.nil? || output.empty? || output == "None"
-    raise "DynamoDB query returned no compute node info for instance #{node['ec2']['instance_id']} " \
-          "in table #{node['cluster']['slurm_ddb_table']}. " \
-          "The instance may not be registered; check clustermgtd logs on the head node."
-  end
+  raise "Failed when retrieving Compute info from DynamoDB" if output.nil? || output.empty? || output == "None"
 
-  Chef::Log.info("Retrieved Slurm nodename is: #{output}")
-  output
+  slurm_nodename = output
+
+  Chef::Log.info("Retrieved Slurm nodename is: #{slurm_nodename}")
+
+  slurm_nodename
 end
 
 #
