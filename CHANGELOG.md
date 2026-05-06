@@ -16,7 +16,7 @@ via custom Slurm settings or the cluster name contains upper-case letters.
 - Remove deprecated parameter `AccountingStorageUser` from Slurm configuration that was causing harmless error messages.
 - Fix DCV prerequisite installation potentially blocking on interactive prompts by exporting `DEBIAN_FRONTEND=noninteractive` to child processes.
 - Fix slurmrestd failing to start on AL2023 because the http-parser library was not discoverable by the dynamic linker.
-- Fix compute node bootstrap failing without a clear error when the compute subnet cannot reach DynamoDB (e.g. when a DynamoDB VPC gateway endpoint is missing).
+- Fix compute node bootstrap hanging without a clear error when the compute subnet cannot reach DynamoDB.
 
 3.15.0
 ------
