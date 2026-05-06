@@ -28,6 +28,10 @@ end
 # Retrieve compute and head node info from dynamo db (Slurm only)
 #
 def dynamodb_info(aws_connection_timeout_seconds: 10, aws_read_timeout_seconds: 30, shell_timeout_seconds: 60)
+  ddb_hint = "This usually means the compute node cannot reach DynamoDB. " \
+             "If the compute subnet has no internet egress (NAT/IGW), ensure a DynamoDB VPC gateway endpoint " \
+             "is configured and attached to the subnet's route table."
+
   cmd = Mixlib::ShellOut.new("#{cookbook_virtualenv_path}/bin/aws dynamodb " \
                       "--region #{node['cluster']['region']} query --table-name #{node['cluster']['slurm_ddb_table']} " \
                       "--index-name InstanceId --key-condition-expression 'InstanceId = :instanceid' " \
@@ -37,14 +41,18 @@ def dynamodb_info(aws_connection_timeout_seconds: 10, aws_read_timeout_seconds: 
                       "--cli-read-timeout #{aws_read_timeout_seconds} " \
                       "--output text --query 'Items[0].[Id.S]'",
                              user: 'root',
-                             timeout: shell_timeout_seconds).run_command
+                             timeout: shell_timeout_seconds)
+
+  begin
+    cmd.run_command
+  rescue Mixlib::ShellOut::CommandTimeout
+    raise "Failed to query DynamoDB for compute node info: the aws cli call did not return in time " \
+          "and was terminated. #{ddb_hint}"
+  end
 
   if cmd.error?
     raise "Failed to query DynamoDB for compute node info. " \
-          "exit_code=#{cmd.exitstatus}, stderr=#{cmd.stderr.strip}. " \
-          "This usually means the compute node cannot reach DynamoDB. " \
-          "If the compute subnet has no internet egress (NAT/IGW), ensure a DynamoDB VPC gateway endpoint " \
-          "is configured and attached to the subnet's route table."
+          "exit_code=#{cmd.exitstatus}, stderr=#{cmd.stderr.strip}. #{ddb_hint}"
   end
 
   output = cmd.stdout.strip
