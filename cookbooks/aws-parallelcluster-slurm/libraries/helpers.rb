@@ -27,8 +27,8 @@ end
 #
 # Retrieve compute and head node info from dynamo db (Slurm only)
 #
-def dynamodb_info(aws_connection_timeout_seconds: 30, aws_read_timeout_seconds: 60, shell_timout_seconds: 300)
-  output = Mixlib::ShellOut.new("#{cookbook_virtualenv_path}/bin/aws dynamodb " \
+def dynamodb_info(aws_connection_timeout_seconds: 10, aws_read_timeout_seconds: 30, shell_timeout_seconds: 60)
+  cmd = Mixlib::ShellOut.new("#{cookbook_virtualenv_path}/bin/aws dynamodb " \
                       "--region #{node['cluster']['region']} query --table-name #{node['cluster']['slurm_ddb_table']} " \
                       "--index-name InstanceId --key-condition-expression 'InstanceId = :instanceid' " \
                       "--expression-attribute-values '{\":instanceid\": {\"S\":\"#{node['ec2']['instance_id']}\"}}' " \
@@ -36,9 +36,19 @@ def dynamodb_info(aws_connection_timeout_seconds: 30, aws_read_timeout_seconds: 
                       "--cli-connect-timeout #{aws_connection_timeout_seconds} " \
                       "--cli-read-timeout #{aws_read_timeout_seconds} " \
                       "--output text --query 'Items[0].[Id.S]'",
-                                user: 'root',
-                                timeout: shell_timout_seconds).run_command.stdout.strip
+                             user: 'root',
+                             timeout: shell_timeout_seconds)
 
+  begin
+    cmd.run_command
+  rescue Mixlib::ShellOut::CommandTimeout
+    raise "Failed to query DynamoDB for compute node info: the aws cli call did not return in time " \
+          "and was terminated. This usually means the compute node cannot reach DynamoDB. " \
+          "If the compute subnet has no internet egress (NAT/IGW), ensure a DynamoDB VPC gateway endpoint " \
+          "is configured and attached to the subnet's route table."
+  end
+
+  output = cmd.stdout.strip
   raise "Failed when retrieving Compute info from DynamoDB" if output.nil? || output.empty? || output == "None"
 
   slurm_nodename = output
