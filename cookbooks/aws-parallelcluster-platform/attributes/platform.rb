@@ -18,10 +18,6 @@ default['cluster']['enroot']['persistent_dir'] = '/var/enroot'
 default['cluster']['nvidia']['enabled'] = 'no'
 default['cluster']['nvidia']['driver_version'] = '580.105.08'
 default['cluster']['nvidia']['dcgm_version'] = '4.5.1-1'
-if platform?('amazon') && node['platform_version'] == "2"
-  default['cluster']['nvidia']['driver_version'] = '550.127.08'
-  default['cluster']['nvidia']['dcgm_version'] = '3.3.6-1'
-end
 default['cluster']['nvidia']['dcgm_base_url'] = "#{node['cluster']['artifacts_s3_url']}/dependencies/nvidia_dcgm"
 
 # GDRCopy

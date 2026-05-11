@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and limitations under the License.
 
 control 'tag:install_expected_versions_of_nvidia_imex_installed' do
-  only_if { ['yes', true, 'true'].include?(node['cluster']['nvidia']['enabled']) && !os_properties.alinux2? }
+  only_if { ['yes', true, 'true'].include?(node['cluster']['nvidia']['enabled']) }
 
   nvidia_imex_service = 'nvidia-imex'
   ["/usr/bin/#{nvidia_imex_service}", "/usr/bin/#{nvidia_imex_service}-ctl"].each do |path|
@@ -29,7 +29,7 @@ control 'tag:install_expected_versions_of_nvidia_imex_installed' do
 end
 
 control 'tag:config_nvidia_fabric_manager_enabled' do
-  only_if { instance.nvs_switch_enabled? && node['cluster']['node_type'] == "ComputeFleet" && !os_properties.alinux2? }
+  only_if { instance.nvs_switch_enabled? && node['cluster']['node_type'] == "ComputeFleet" }
 
   describe file("/etc/systemd/system/nvidia-imex.service") do
     it { should exist }

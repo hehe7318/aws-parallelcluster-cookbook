@@ -28,26 +28,6 @@ describe 'package_repos:setup' do
           expect(chef_run).to include_recipe('yum')
         end
 
-        if version == '2'
-          it 'installs epel' do
-            is_expected.to install_alinux_extras_topic('epel')
-          end
-        else
-          it 'does not install epel' do
-            is_expected.not_to install_alinux_extras_topic('epel')
-          end
-        end
-      when 'centos'
-        it 'installs yum and epel' do
-          expect(chef_run).to include_recipe('yum')
-          expect(chef_run).to include_recipe('yum-epel')
-        end
-
-        it 'skips unavailable repos' do
-          is_expected.to run_execute('yum-config-manager_skip_if_unavail')
-            .with(command: 'yum-config-manager --setopt=*.skip_if_unavailable=1 --save')
-        end
-
       when 'redhat'
         it 'installs yum and epel' do
           expect(chef_run).to include_recipe('yum')

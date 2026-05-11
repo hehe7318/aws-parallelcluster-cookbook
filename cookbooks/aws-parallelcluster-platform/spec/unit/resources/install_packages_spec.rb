@@ -45,12 +45,6 @@ describe 'install_packages:setup' do
           end
         end
 
-        if platform == 'amazon' && version == '2'
-          it 'installs extra packages' do
-            is_expected.to install_alinux_extras_topic('R3.4')
-          end
-        end
-
       elsif platform == 'ubuntu'
         it 'installs base packages' do
           is_expected.to install_package(default_packages)

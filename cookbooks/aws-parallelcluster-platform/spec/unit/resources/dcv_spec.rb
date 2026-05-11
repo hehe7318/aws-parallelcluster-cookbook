@@ -141,8 +141,8 @@ describe 'dcv:packages' do
           expect(resource.dcv_web_viewer).to eq("nice-dcv-web-viewer-#{dcv_webviewer_version}.#{dcv_platform_version_pkg}.#{dcv_url_arch}.rpm")
           expect(resource.dcv_gl).to eq("nice-dcv-gl-#{dcv_gl_version}.#{dcv_platform_version_pkg}.#{dcv_url_arch}.rpm")
         else
-          dcv_platform_version = "#{platform}#{version}" == "amazon2" ? "7" : version.to_i
-          dcv_platform_version_pkg = platform == "amazon" ? "amzn2" : "el" + version
+          dcv_platform_version = version.to_i
+          dcv_platform_version_pkg = "el" + version
           expect(resource.dcv_package).to eq("nice-dcv-#{dcv_version}-#{dcv_platform_version_pkg}-#{dcv_url_arch}")
           expect(resource.dcv_server).to eq("nice-dcv-server-#{dcv_server_version}.el#{dcv_platform_version}.#{dcv_url_arch}.rpm")
           expect(resource.xdcv).to eq("nice-xdcv-#{xdcv_version}.el#{dcv_platform_version}.#{dcv_url_arch}.rpm")
@@ -292,42 +292,6 @@ describe 'dcv:dcvauth_virtualenv' do
         expect(resource.dcvauth_virtualenv).to eq(virtualenv)
         expect(resource.dcvauth_virtualenv_path).to eq("#{node['cluster']['system_pyenv_root']}/versions/#{python_version}/envs/#{virtualenv}")
       end
-    end
-  end
-end
-
-describe 'dcv:prereq_packages on amazon linux' do
-  cached(:chef_run) do
-    runner(platform: 'amazon', version: '2', step_into: ['dcv'])
-  end
-  cached(:resource) do
-    ConvergeDcv.nothing(chef_run)
-    chef_run.find_resource('dcv', 'nothing')
-  end
-  cached(:common_prereq_packages) do
-    %w(gdm gnome-session gnome-classic-session gnome-session-xsession
-                         xorg-x11-server-Xorg xorg-x11-fonts-Type1 xorg-x11-drivers
-                         gnu-free-fonts-common gnu-free-mono-fonts gnu-free-sans-fonts
-                         gnu-free-serif-fonts glx-utils)
-  end
-
-  context 'when on arm' do
-    before do
-      allow_any_instance_of(Object).to receive(:arm_instance?).and_return(true)
-    end
-
-    it 'returns prereq package list with mate-terminal' do
-      expect(resource.prereq_packages).to eq(common_prereq_packages + %w(mate-terminal))
-    end
-  end
-
-  context 'when not on arm' do
-    before do
-      allow_any_instance_of(Object).to receive(:arm_instance?).and_return(false)
-    end
-
-    it 'returns prereq package list with gnome-terminal' do
-      expect(resource.prereq_packages).to eq(common_prereq_packages + %w(gnome-terminal))
     end
   end
 end

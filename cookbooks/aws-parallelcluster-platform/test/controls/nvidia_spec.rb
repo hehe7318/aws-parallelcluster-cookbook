@@ -11,7 +11,7 @@
 
 control 'tag:install_expected_versions_of_nvidia_driver_installed' do
   only_if do
-    !instance.custom_ami? && !(os_properties.centos7? && os_properties.arm?) &&
+    !instance.custom_ami? &&
       (node['cluster']['nvidia']['enabled'] == 'yes' || node['cluster']['nvidia']['enabled'] == true)
   end
 
@@ -37,7 +37,7 @@ end
 
 control 'tag:install_expected_versions_of_nvidia_cuda_installed' do
   only_if do
-    !(os_properties.centos7? && os_properties.arm?) && !instance.custom_ami? &&
+    !instance.custom_ami? &&
       (node['cluster']['nvidia']['enabled'] == 'yes' || node['cluster']['nvidia']['enabled'] == true)
   end
 
@@ -56,8 +56,7 @@ end
 
 control 'tag:config_nvidia_uvm_and_persistenced_on_graphic_instances' do
   only_if do
-    !(os_properties.centos7? && os_properties.arm?) &&
-      !instance.custom_ami? && instance.graphic?
+    !instance.custom_ami? && instance.graphic?
   end
 
   describe kernel_module('nvidia_uvm') do

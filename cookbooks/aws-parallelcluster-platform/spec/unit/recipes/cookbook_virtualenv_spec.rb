@@ -11,13 +11,7 @@ describe 'aws-parallelcluster-platform::cookbook_virtualenv' do
       cached(:base_dir) { '/opt/parallelcluster' }
       cached(:s3_url) { 's3://url' }
       cached(:arch) { 'x86_64' }
-      cached(:dependency_package_name) do
-        if platform == 'amazon' && version == '2'
-          'dependencies'
-        else
-          "pypi-cookbook-dependencies-#{python_major_minor_version}-#{arch}"
-        end
-      end
+      cached(:dependency_package_name) { "pypi-cookbook-dependencies-#{python_major_minor_version}-#{arch}" }
       cached(:pip_install_s3_bash_code) do
         <<-REQ
       set -e

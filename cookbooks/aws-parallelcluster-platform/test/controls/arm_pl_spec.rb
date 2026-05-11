@@ -41,11 +41,9 @@ control 'tag:install_arm_pl_installed' do
 
   test_software = "fftw_dft_r2c_1d_c_example"
 
-  scl_centos7 = "scl enable devtoolset-8" if os_properties.centos?
-
   describe bash("#{setup} && module load #{armpl_module_general_name} && "\
                 "cd #{armpl_install_dir}/examples_lp64 && "\
-                "make clean && #{scl_centos7} make") do
+                "make clean") do
     its('exit_status') { should eq(0) }
     its('stdout') { should match /testing: no example difference files were generated/i }
     its('stdout') { should match /test passed ok/i }

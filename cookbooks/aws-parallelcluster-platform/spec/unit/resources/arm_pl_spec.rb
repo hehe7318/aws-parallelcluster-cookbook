@@ -26,9 +26,7 @@ describe 'arm_pl:setup' do
         when 'ubuntu'
           "Ubuntu-#{version}"
         when 'amazon'
-          if version == '2'
-            "AmazonLinux-2"
-          elsif version == '2023'
+          if version == '2023'
             'RHEL-9'
           end
         else

@@ -55,8 +55,6 @@ describe 'efa:setup' do
       cached(:prerequisites) do
         if %(redhat rocky).include?(platform) || platform == 'amazon' && version == '2023'
           %w(environment-modules libibverbs-utils librdmacm-utils rdma-core-devel)
-        elsif platform == 'amazon' && version == '2'
-          %w(environment-modules libibverbs-utils librdmacm-utils)
         else
           "environment-modules"
         end

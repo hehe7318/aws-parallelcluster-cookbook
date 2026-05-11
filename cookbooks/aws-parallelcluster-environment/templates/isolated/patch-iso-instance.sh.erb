@@ -20,8 +20,8 @@ REGION="$(get_instance_region)"
 source /etc/os-release
 OS="${ID}${VERSION_ID}"
 
-if [[ "${OS}" != "amzn2" && "${OS}" != "amzn2023" ]]; then
-  echo "[ERROR] Unsupported OS '${OS}'. Configuration supported only on Amazon Linux 2 and Amazon Linux 2023."
+if [[ "${OS}" != "amzn2023" ]]; then
+  echo "[ERROR] Unsupported OS '${OS}'. Configuration supported only on Amazon Linux 2023."
   exit 1
 fi
 
@@ -52,20 +52,6 @@ REPO_DEFINITION
     dnf install -y amazon-linux-repo-iso ca-certificates-iso
   fi
   sed -i "s/sslverify=0//g" /etc/dnf/dnf.conf
-else
-  cat > ${REPOSITORY_DEFINITION_FILE} <<REPO_DEFINITION
-[amzn2-iso]
-name=Amazon Linux 2 isolated region repository
-mirrorlist=http://amazonlinux.\$awsregion.\$awsdomain/\$releasever/core-\$awsregion/latest/\$basearch/mirror.list
-priority=9
-gpgcheck=0
-enabled=1
-metadata_expire=300
-mirrorlist_expire=300
-report_instanceid=yes
-REPO_DEFINITION
-
-  yum --disablerepo="*" --enablerepo="${OS}-iso" install -y "*-${REGION}"
 fi
 
 rm -f ${REPOSITORY_DEFINITION_FILE}

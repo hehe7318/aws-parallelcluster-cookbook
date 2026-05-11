@@ -61,15 +61,5 @@ control 'tag:config_system_authentication_configured' do
       its('stdout') { should match /Profile ID: sssd/ }
       its('stdout') { should match /with-mkhomedir/ }
     end unless os_properties.redhat_on_docker?
-
-  elsif os_properties.centos7? || os_properties.alinux2?
-
-    describe bash("authconfig --test") do
-      its('exit_status') { should eq 0 }
-      its('stdout') { should match /nss_sss is enabled by default/ }
-      its('stdout') { should match /pam_sss is enabled by default/ }
-      its('stdout') { should match /pam_mkhomedir or pam_oddjob_mkhomedir is enabled/ }
-    end
-
   end
 end

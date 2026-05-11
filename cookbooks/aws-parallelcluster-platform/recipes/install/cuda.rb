@@ -24,13 +24,6 @@ cuda_patch = '2'
 cuda_complete_version = "#{cuda_version}.#{cuda_patch}"
 cuda_version_suffix = '580.95.05'
 cuda_samples_version = '13.0'
-if platform?('amazon') && node['platform_version'] == "2"
-  cuda_version = '12.4'
-  cuda_patch = '1'
-  cuda_complete_version = "#{cuda_version}.#{cuda_patch}"
-  cuda_version_suffix = '550.54.15'
-  cuda_samples_version = '12.4'
-end
 cuda_arch = arm_instance? ? 'linux_sbsa' : 'linux'
 cuda_url = "#{node['cluster']['artifacts_s3_url']}/dependencies/cuda/cuda_#{cuda_complete_version}_#{cuda_version_suffix}_#{cuda_arch}.run"
 cuda_samples_url = "#{node['cluster']['artifacts_s3_url']}/dependencies/cuda/samples/v#{cuda_samples_version}.tar.gz"

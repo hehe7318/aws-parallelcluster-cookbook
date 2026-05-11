@@ -45,47 +45,41 @@ describe 'stunnel:setup' do
         is_expected.to setup_stunnel('setup')
       end
 
-      if platform == 'amazon' && version == '2'
-        it "doesn't install stunnel" do
-          is_expected.not_to run_bash('install stunnel')
-        end
-      else
-        it 'creates sources directory' do
-          is_expected.to create_directory(sources_dir).with_recursive(true)
-        end
+      it 'creates sources directory' do
+        is_expected.to create_directory(sources_dir).with_recursive(true)
+      end
 
-        it 'updates package repositories' do
-          is_expected.to update_package_repos('update package repositories')
-        end
+      it 'updates package repositories' do
+        is_expected.to update_package_repos('update package repositories')
+      end
 
-        it 'installs dependencies' do
-          is_expected.to install_package(dependencies)
-        end
+      it 'installs dependencies' do
+        is_expected.to install_package(dependencies)
+      end
 
-        it 'downloads tarball' do
-          is_expected.to create_if_missing_remote_file(stunnel_tarball).with(
-            source: stunnel_url,
-            mode: '0644',
-            retries: 3,
-            retry_delay: 5,
-            checksum: stunnel_checksum
-          )
-        end
+      it 'downloads tarball' do
+        is_expected.to create_if_missing_remote_file(stunnel_tarball).with(
+          source: stunnel_url,
+          mode: '0644',
+          retries: 3,
+          retry_delay: 5,
+          checksum: stunnel_checksum
+        )
+      end
 
-        it 'installs stunnel' do
-          is_expected.to run_bash('install stunnel')
-            .with_cwd(sources_dir)
-            .with_code(/tar xvfz #{stunnel_tarball}/)
-            .with_code(/cd stunnel-#{stunnel_version}/)
-            .with_code(%r{./configure})
-            .with_code(%r{rm /bin/stunnel})
-            .with_code(/make install/)
-            .with_code(%r{ln -s /usr/local/bin/stunnel /bin/stunnel})
-        end
+      it 'installs stunnel' do
+        is_expected.to run_bash('install stunnel')
+          .with_cwd(sources_dir)
+          .with_code(/tar xvfz #{stunnel_tarball}/)
+          .with_code(/cd stunnel-#{stunnel_version}/)
+          .with_code(%r{./configure})
+          .with_code(%r{rm /bin/stunnel})
+          .with_code(/make install/)
+          .with_code(%r{ln -s /usr/local/bin/stunnel /bin/stunnel})
+      end
 
-        it 'writes node attributes' do
-          is_expected.to write_node_attributes('dump node attributes')
-        end
+      it 'writes node attributes' do
+        is_expected.to write_node_attributes('dump node attributes')
       end
     end
   end

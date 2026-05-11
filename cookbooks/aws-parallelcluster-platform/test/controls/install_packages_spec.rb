@@ -22,7 +22,7 @@ control 'tag:install_install_packages' do
 
   # NOTE: Skipped on AL2023 because the Desktop group (installed for DCV) now pulls in
   # ImageMagick-libs which depends on fftw-libs-double
-  unless os_properties.centos7? || os_properties.alinux2023?
+  unless os_properties.alinux2023?
     # Verify fftw package is not installed
     describe bash('ls 2>/dev/null /usr/lib64/libfftw*') do
       its('stdout') { should be_empty }
@@ -44,13 +44,6 @@ control 'tag:install_install_packages' do
 
     describe package('glibc-static') do
       it { should be_installed }
-    end
-
-    # Check amazon linux2 extra
-    if os_properties.alinux2?
-      describe package('R-core') do
-        it { should be_installed }
-      end
     end
   elsif os.debian?
 

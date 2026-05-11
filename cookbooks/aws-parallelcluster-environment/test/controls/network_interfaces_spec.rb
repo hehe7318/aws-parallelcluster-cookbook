@@ -64,7 +64,7 @@ control 'network_interfaces_configured' do
         its('group') { should eq 'root' }
         its('content') { should match /^ip route del/ }
       end
-    elsif os_properties.amazon_family? || os_properties.centos?
+    elsif os_properties.amazon_family?
       describe file("/etc/sysconfig/network-scripts/ifcfg-#{device_name}") do
         it { should exist }
         its('content') { should match /^DEVICE=#{device_name}/ }

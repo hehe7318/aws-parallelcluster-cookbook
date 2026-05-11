@@ -99,7 +99,7 @@ control 'tag:install_dcv_rhel_and_centos_specific_setup' do
   title 'Check rhel and centos specific setup'
   only_if { instance.dcv_install_enabled? && !os_properties.on_docker? }
   only_if { !os_properties.alinux2023? }
-  only_if { os_properties.centos? || os_properties.redhat? }
+  only_if { os_properties.redhat? }
 
   describe command('gnome-shell --version') do
     its('exit_status') { should eq 0 }
@@ -131,31 +131,6 @@ control 'tag:install_dcv_rhel_and_centos_specific_setup' do
   # As in the disable_selinux_spec we would need to skip testing that selinux is disabled
   # in centos and redhat because there we would need a reboot. As these are the two OSs that
   # we test in this control, we simply omit that check.
-end
-
-control 'tag:install_dcv_alinux2_specific_setup' do
-  title 'Check alinux2 specific setup'
-
-  only_if { instance.dcv_install_enabled? && os_properties.alinux2? }
-
-  prereq_packages = %w(gdm gnome-session gnome-classic-session gnome-session-xsession
-                       xorg-x11-server-Xorg xorg-x11-fonts-Type1 xorg-x11-drivers
-                       gnu-free-fonts-common gnu-free-mono-fonts gnu-free-sans-fonts
-                       gnu-free-serif-fonts glx-utils) + (os_properties.arm? ? %w(mate-terminal) : %w(gnome-terminal))
-
-  prereq_packages.each do |pkg|
-    describe package(pkg) do
-      it { should be_installed }
-    end
-  end
-
-  describe file('/etc/sysconfig/desktop') do
-    it { should be_file }
-    it { should be_owned_by 'root' }
-    it { should be_grouped_into 'root' }
-    it { should be_mode 0755 }
-    its('content') { should eq 'PREFERRED=/usr/bin/gnome-session' }
-  end
 end
 
 control 'tag:install_dcv_switch_runlevel_to_multiuser_target' do
@@ -308,26 +283,10 @@ control 'tag:config_dcv_services_correctly_configured' do
       end
     end
 
-    if os_properties.alinux2?
-      describe service('gdm') do
-        it { should be_installed }
-        it { should be_enabled }
-        it { should be_running }
-      end
-    end
-
   else
     describe bash('systemctl get-default') do
       its('exit_status') { should eq 0 }
       its('stdout') { should match /multi-user.target/ }
-    end
-
-    if os_properties.alinux2?
-      describe service('gdm') do
-        it { should be_installed }
-        it { should be_enabled }
-        it { should_not be_running }
-      end
     end
   end
 end

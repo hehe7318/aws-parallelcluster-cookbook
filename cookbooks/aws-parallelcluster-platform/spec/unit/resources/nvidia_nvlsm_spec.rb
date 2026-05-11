@@ -32,51 +32,45 @@ describe 'nvidia_nvlsm:nvlsm_installation_enabled?' do
         chef_run.find_resource('nvidia_nvlsm', 'install')
       end
 
-      if "#{platform}#{version}" == 'amazon2'
-        it 'on Amazon Linux 2, nvlsm installation is disabled' do
+      context "when nvidia is not enabled" do
+        before do
+          allow_any_instance_of(Object).to receive(:nvidia_enabled?).and_return(false)
+        end
+
+        it 'nvlsm installation is disabled' do
           expect(resource.nvlsm_installation_enabled?).to eq(false)
         end
-      else
-        context "when nvidia is not enabled" do
-          before do
-            allow_any_instance_of(Object).to receive(:nvidia_enabled?).and_return(false)
-          end
+      end
 
-          it 'nvlsm installation is disabled' do
-            expect(resource.nvlsm_installation_enabled?).to eq(false)
+      context "when nvlsm is already installed" do
+        before do
+          allow(File).to receive(:exist?).with('/opt/nvidia/nvlsm/sbin/nvlsm').and_return(true)
+        end
+
+        it 'nvlsm installation is disabled' do
+          expect(resource.nvlsm_installation_enabled?).to eq(false)
+        end
+      end
+
+      context "when nvlsm is already installed" do
+        before do
+          allow_any_instance_of(Object).to receive(:nvidia_enabled?).and_return(false)
+        end
+
+        it 'nvlsm installation is disabled' do
+          expect(resource.nvlsm_installation_enabled?).to eq(false)
+        end
+      end
+
+      context "when nvlsm installation is disabled via chef attribute" do
+        cached(:chef_run) do
+          runner(platform: platform, version: version) do |node|
+            node.override['cluster']['nvidia']['nvlsm']['enabled'] = false
           end
         end
 
-        context "when nvlsm is already installed" do
-          before do
-            allow(File).to receive(:exist?).with('/opt/nvidia/nvlsm/sbin/nvlsm').and_return(true)
-          end
-
-          it 'nvlsm installation is disabled' do
-            expect(resource.nvlsm_installation_enabled?).to eq(false)
-          end
-        end
-
-        context "when nvlsm is already installed" do
-          before do
-            allow_any_instance_of(Object).to receive(:nvidia_enabled?).and_return(false)
-          end
-
-          it 'nvlsm installation is disabled' do
-            expect(resource.nvlsm_installation_enabled?).to eq(false)
-          end
-        end
-
-        context "when nvlsm installation is disabled via chef attribute" do
-          cached(:chef_run) do
-            runner(platform: platform, version: version) do |node|
-              node.override['cluster']['nvidia']['nvlsm']['enabled'] = false
-            end
-          end
-
-          it 'nvlsm installation is disabled' do
-            expect(resource.nvlsm_installation_enabled?).to eq(false)
-          end
+        it 'nvlsm installation is disabled' do
+          expect(resource.nvlsm_installation_enabled?).to eq(false)
         end
       end
     end

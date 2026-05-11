@@ -81,7 +81,6 @@ describe 'nvidia_dcgm:_nvidia_dcgm_enabled' do
     context "on #{platform}#{version}" do
       cached(:expected_platform) do
         platforms = {
-          'amazon2' => 'rhel7',
           'amazon2023' => 'amzn2023',
           'ubuntu22.04' => 'ubuntu2204',
           'ubuntu24.04' => 'ubuntu2404',
@@ -102,19 +101,12 @@ describe 'nvidia_dcgm:_nvidia_dcgm_enabled' do
           ConvergeNvidiaDcgm.setup(chef_run, nvidia_enabled: true)
           chef_run.find_resource('nvidia_dcgm', 'setup')
         end
+        it "is enabled" do
+          expect(resource._nvidia_dcgm_enabled).to eq(true)
+        end
 
-        if %w(centos7 amazon2).include?("#{platform}#{version}")
-          it "is not enabled" do
-            expect(resource._nvidia_dcgm_enabled).to eq(false)
-          end
-        else
-          it "is enabled" do
-            expect(resource._nvidia_dcgm_enabled).to eq(true)
-          end
-
-          it "returns correct platform for download URL" do
-            expect(resource.platform).to eq(expected_platform)
-          end
+        it "returns correct platform for download URL" do
+          expect(resource.platform).to eq(expected_platform)
         end
       end
 
@@ -186,15 +178,9 @@ describe 'nvidia_dcgm:setup' do
             ConvergeNvidiaDcgm.setup(chef_run)
           end
 
-          if %w(centos7 amazon2).include?("#{platform}#{version}")
-            it 'does not install datacenter gpu manager' do
-              is_expected.not_to run_bash('Install datacenter-gpu-manager')
-            end
-          else
-            it 'installs datacenter gpu manager' do
-              is_expected.to run_bash('Install datacenter-gpu-manager-4-core')
-              is_expected.to run_bash('Install datacenter-gpu-manager-4-cuda13')
-            end
+          it 'installs datacenter gpu manager' do
+            is_expected.to run_bash('Install datacenter-gpu-manager-4-core')
+            is_expected.to run_bash('Install datacenter-gpu-manager-4-cuda13')
           end
         end
 

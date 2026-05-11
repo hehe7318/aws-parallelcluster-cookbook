@@ -81,7 +81,7 @@ def test_get_compute_launch_template_ids(mocker, launch_template_config_content,
                     "path": "/tmp/dna.json",  # nosec B108
                     "permissions": "0644",
                     "owner": "root:root",
-                    "content": '{"cluster":{"base_os":"alinux2","cluster_name":"clustername",'
+                    "content": '{"cluster":{"base_os":"alinux2023","cluster_name":"clustername",'
                     '"directory_service":{"domain_read_only_user":"","enabled":"false",'
                     '"generate_ssh_keys_for_users":"false"},'
                     '"launch_template_id":"LoginNodeLaunchTemplate2736fab291f04e69"}}\n',
@@ -104,7 +104,7 @@ def test_get_compute_launch_template_ids(mocker, launch_template_config_content,
             "user_data_2.txt",
             [
                 {
-                    "content": '{"cluster":{"base_os":"alinux2"}}\n',
+                    "content": '{"cluster":{"base_os":"alinux2023"}}\n',
                     "owner": "root:root",
                     "path": "/tmp/dna.json",  # nosec B108
                     "permissions": "0644",

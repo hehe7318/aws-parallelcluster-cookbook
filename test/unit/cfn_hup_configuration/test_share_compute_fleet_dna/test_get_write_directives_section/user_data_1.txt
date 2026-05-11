@@ -23,7 +23,7 @@ write_files:
     permissions: '0644'
     owner: root:root
     content: |
-      {"cluster":{"base_os":"alinux2","cluster_name":"clustername","directory_service":{"domain_read_only_user":"","enabled":"false","generate_ssh_keys_for_users":"false"},"launch_template_id":"LoginNodeLaunchTemplate2736fab291f04e69"}}
+      {"cluster":{"base_os":"alinux2023","cluster_name":"clustername","directory_service":{"domain_read_only_user":"","enabled":"false","generate_ssh_keys_for_users":"false"},"launch_template_id":"LoginNodeLaunchTemplate2736fab291f04e69"}}
   - path: /tmp/extra.json
     permissions: '0644'
     owner: root:root

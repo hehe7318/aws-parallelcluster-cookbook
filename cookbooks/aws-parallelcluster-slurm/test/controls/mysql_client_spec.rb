@@ -17,9 +17,6 @@ control 'tag:install_mysql_client_installed' do
   if os.redhat?
     mysql_packages.concat %w(mysql-community-client-plugins mysql-community-common
        mysql-community-devel mysql-community-libs)
-    if os_properties.alinux2?
-      mysql_packages.concat %w(mysql-community-libs-compat)
-    end
   elsif ubuntu
     mysql_packages.concat %w(libmysqlclient-dev libmysqlclient21)
   else

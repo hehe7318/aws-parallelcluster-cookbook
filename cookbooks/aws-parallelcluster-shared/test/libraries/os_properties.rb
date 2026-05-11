@@ -28,10 +28,6 @@ class OsProperties < Inspec.resource(1)
     on_docker? && rocky?
   end
 
-  def centos?
-    inspec.os.name == 'centos'
-  end
-
   def ubuntu?
     inspec.os.name == 'ubuntu'
   end
@@ -48,16 +44,8 @@ class OsProperties < Inspec.resource(1)
     rocky? && inspec.os.release.to_i == 8
   end
 
-  def centos7?
-    centos? && inspec.os.release.to_i == 7
-  end
-
   def alinux?
     inspec.os.name == 'amazon'
-  end
-
-  def alinux2?
-    alinux? && inspec.os.release.to_i == 2
   end
 
   def alinux2023?

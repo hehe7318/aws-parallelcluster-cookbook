@@ -103,7 +103,6 @@ jobs:
       fail-fast: false
       matrix:
         cookbook:
-          - cookbooks/aws-parallelcluster-awsbatch
           - cookbooks/aws-parallelcluster-computefleet
           - cookbooks/aws-parallelcluster-environment
           - cookbooks/aws-parallelcluster-platform

@@ -20,5 +20,5 @@ fetch_config 'Fetch and load cluster configs' do
   update true
 end
 
-sudo_access "Update Sudo Access" if node['cluster']['scheduler'] == 'slurm'
+sudo_access "Update Sudo Access"
 include_recipe 'aws-parallelcluster-platform::config_login' if node['cluster']['node_type'] == 'LoginNode'

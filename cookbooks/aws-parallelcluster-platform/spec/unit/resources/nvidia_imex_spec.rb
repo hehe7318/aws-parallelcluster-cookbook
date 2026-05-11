@@ -100,14 +100,8 @@ describe 'nvidia_imex:imex_installed?' do
           allow(File).to receive(:exist?).with(imex_binary).and_return(false)
         end
 
-        if platform == 'amazon' && version == '2'
-          it 'is true' do
-            expect(resource.imex_installed?).to eq(true)
-          end
-        else
-          it 'is false' do
-            expect(resource.imex_installed?).to eq(false)
-          end
+        it 'is false' do
+          expect(resource.imex_installed?).to eq(false)
         end
       end
 
@@ -247,52 +241,40 @@ describe 'nvidia_imex:install' do
             chef_run.node.override['cluster']['nvidia']['driver_version'] = nvidia_version
             ConvergeNvidiaImex.install(chef_run)
           end
-          if platform == 'amazon' && version == '2'
-            it 'does not install nvidia-imex' do
-              is_expected.not_to install_install_packages('Install nvidia-imex')
-                .with(packages: "#{nvidia_imex_name}")
-                .with(action: %i(install))
-            end
-            it 'does not set nvidia-imex version' do
-              expect(node.default['cluster']['nvidia']['imex']['version']).not_to eq(nvidia_imex_version)
-              expect(node.default['cluster']['nvidia']['imex']['package']).not_to eq(nvidia_imex_package)
-              is_expected.not_to write_node_attributes('dump node attributes')
-            end
-          else
 
-            it 'installs nvidia-imex' do
-              if platform == 'ubuntu'
-                is_expected.to create_if_missing_remote_file("#{SOURCE_DIR}/#{nvidia_imex_package}-#{nvidia_imex_version}.deb").with(
-                  source: "#{cluster_artifacts_s3_url}/dependencies/nvidia_imex/#{url_suffix}.deb",
-                  mode: '0644',
-                  retries: 3,
-                  retry_delay: 5
-                )
-                is_expected.to run_bash('Install nvidia-imex')
-                  .with(user: 'root')
-                  .with_retries(3)
-                  .with_retry_delay(5)
-                  .with_code(/    set -e\n    dpkg -i #{nvidia_imex_package}-#{nvidia_imex_version}.deb && apt-mark hold #{nvidia_imex_package}/)
-              else
-                is_expected.to create_if_missing_remote_file("#{SOURCE_DIR}/#{nvidia_imex_package}-#{nvidia_imex_version}.rpm").with(
-                  source: "#{cluster_artifacts_s3_url}/dependencies/nvidia_imex/#{url_suffix}.rpm",
-                  mode: '0644',
-                  retries: 3,
-                  retry_delay: 5
-                )
-                is_expected.to install_package('yum-plugin-versionlock')
-                is_expected.to run_bash("Install nvidia-imex")
-                  .with(user: 'root')
-                  .with_retries(3)
-                  .with_retry_delay(5)
-                  .with_code(/yum install -y #{nvidia_imex_name}.rpm/)
-              end
+          it 'installs nvidia-imex' do
+            if platform == 'ubuntu'
+              is_expected.to create_if_missing_remote_file("#{SOURCE_DIR}/#{nvidia_imex_package}-#{nvidia_imex_version}.deb").with(
+                source: "#{cluster_artifacts_s3_url}/dependencies/nvidia_imex/#{url_suffix}.deb",
+                mode: '0644',
+                retries: 3,
+                retry_delay: 5
+              )
+              is_expected.to run_bash('Install nvidia-imex')
+                .with(user: 'root')
+                .with_retries(3)
+                .with_retry_delay(5)
+                .with_code(/    set -e\n    dpkg -i #{nvidia_imex_package}-#{nvidia_imex_version}.deb && apt-mark hold #{nvidia_imex_package}/)
+            else
+              is_expected.to create_if_missing_remote_file("#{SOURCE_DIR}/#{nvidia_imex_package}-#{nvidia_imex_version}.rpm").with(
+                source: "#{cluster_artifacts_s3_url}/dependencies/nvidia_imex/#{url_suffix}.rpm",
+                mode: '0644',
+                retries: 3,
+                retry_delay: 5
+              )
+              is_expected.to install_package('yum-plugin-versionlock')
+              is_expected.to run_bash("Install nvidia-imex")
+                .with(user: 'root')
+                .with_retries(3)
+                .with_retry_delay(5)
+                .with_code(/yum install -y #{nvidia_imex_name}.rpm/)
             end
-            it 'sets nvidia-imex version' do
-              expect(node.default['cluster']['nvidia']['imex']['version']).to eq(nvidia_imex_version)
-              expect(node.default['cluster']['nvidia']['imex']['package']).to eq(nvidia_imex_package)
-              is_expected.to write_node_attributes('dump node attributes')
-            end
+          end
+
+          it 'sets nvidia-imex version' do
+            expect(node.default['cluster']['nvidia']['imex']['version']).to eq(nvidia_imex_version)
+            expect(node.default['cluster']['nvidia']['imex']['package']).to eq(nvidia_imex_package)
+            is_expected.to write_node_attributes('dump node attributes')
           end
         end
       end
@@ -371,7 +353,7 @@ describe 'nvidia_imex:configure' do
               ConvergeNvidiaImex.configure(chef_run)
             end
 
-            if (platform == 'amazon' && version == '2') || %w(HeadNode LoginNode).include?(node_type)
+            if %w(HeadNode LoginNode).include?(node_type)
               it 'does not configure nvidia-imex' do
                 is_expected.not_to create_if_missing_template("#{imex_nodes_conf_file}")
                   .with(source: 'nvidia-imex/nvidia-imex-nodes.erb')

@@ -120,17 +120,17 @@ Examples of submission are:
 # Note that in this case "supervisord" is a pattern, so all the tests starting with "supervisord" string in that yaml file will be executed.
 ./kitchen.docker.sh platform-install test supervisord -c 5 -l debug
 
-# Run converge phase only of kitchen from file kitchen.environment-config.yml in cookbooks/aws-parallelcluster-environment directory, for alinux2 only.
+# Run converge phase only of kitchen from file kitchen.environment-config.yml in cookbooks/aws-parallelcluster-environment directory, for alinux2023 only.
 # This is useful when you want to test recipe execution only.
 # Once you have executed the converge step, you can for example execute multiple times the verify step, to validate the tests you are writing.
-./kitchen.ec2.sh environment-config converge efa-alinux2
+./kitchen.ec2.sh environment-config converge efa-alinux2023
 
 # Run verify phase only from file kitchen.platform-config.yml in cookbooks/aws-parallelcluster-platform directory,
 # useful if you're modifing the test logic without touching the recipes code.
 ./kitchen.ec2.sh platform-config verify sudo -c 5
 
 # Login to the instance created with the converge step
-./kitchen.ec2.sh platform-config login sudo-alinux2
+./kitchen.ec2.sh platform-config login sudo-alinux2023
 ```
 
 A context must have the format `$subject-$phase`. 
@@ -213,7 +213,6 @@ controls matching the `/tag:config/` regex.
 ```
 verifier:
   inspec_tests:
-    - cookbooks/aws-parallelcluster-awsbatch/test
     - cookbooks/aws-parallelcluster-platform/test
     - cookbooks/aws-parallelcluster-environment/test
     - cookbooks/aws-parallelcluster-computefleet/test
@@ -257,7 +256,7 @@ the Docker image being committed with the tag `pcluster-${PHASE}/${INSTANCE_NAME
 
 For instance, if you successfully run
 ```
-./kitchen.docker.sh platform-install test directories-alinux2
+./kitchen.docker.sh platform-install test directories-alinux2023
 ```
 an image with tag `pcluster-install/directories-alinux2:latest` will be saved.
 
@@ -304,7 +303,7 @@ In the environment file (i.e. `test/environments/kitchen.rb`), for every value t
 you have to define a line like: `'<suite_name>-<variable_name>/<platform>' => 'placeholder'`. For instance:
 ```
 default_attributes 'kitchen_hooks' => {
-  'ebs_mount-vol_array/alinux2' => 'placeholder',
+  'ebs_mount-vol_array/alinux2023' => 'placeholder',
   ...
 }
 ```

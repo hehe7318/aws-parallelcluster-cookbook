@@ -92,11 +92,6 @@ describe 'slurm_dependencies' do
     end
   end
 
-  context "on amazon2" do
-    include_context 'converge slurm_dependencies', 'amazon', '2'
-    include_examples 'installs packages from OS repos via package resource', %w(json-c-devel http-parser-devel perl-Switch lua53-devel)
-  end
-
   context "on redhat8" do
     include_context 'converge slurm_dependencies', 'redhat', '8'
     include_examples 'installs packages from OS repos via dnf ruby_block'

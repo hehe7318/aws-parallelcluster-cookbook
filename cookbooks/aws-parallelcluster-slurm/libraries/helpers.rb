@@ -167,13 +167,6 @@ def validate_file_hash(file_path, expected_hash)
   end
 end
 
-def validate_file_md5_hash(file_path, expected_hash)
-  validate_file_hash(file_path, expected_hash) do
-    require 'digest'
-    Digest::MD5
-  end
-end
-
 def wait_cluster_ready
   return if on_docker? || kitchen_test? && !node['interact_with_ddb']
   # Must match TIMESTAMP_FORMAT in check_cluster_ready.py

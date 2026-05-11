@@ -85,7 +85,7 @@ ruby_block 'configure proxy from install_http_proxy_address' do
       # this, the Firefox transitional package's preinst runs `snap info firefox` via snapd,
       # which times out, retries for 30 minutes holding the dpkg lock, and blocks all
       # subsequent apt-get installs (e.g., DCV prerequisites).
-      if node['platform'] == 'ubuntu' && ::File.exist?('/run/snapd.socket')
+      if platform?('ubuntu') && ::File.exist?('/run/snapd.socket')
         Chef::Log.info("Configuring snapd proxy: #{proxy_url}")
         shell_out!("snap", "set", "system", "proxy.http=#{proxy_url}")
         shell_out!("snap", "set", "system", "proxy.https=#{proxy_url}")

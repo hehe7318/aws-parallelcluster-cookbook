@@ -25,10 +25,6 @@ command = "pip install . #{pip_install_flags}".strip
 
 dependency_package_name = "pypi-node-dependencies-#{node['cluster']['python-major-minor-version']}-#{node['kernel']['machine']}"
 dependency_folder_name = dependency_package_name
-if platform?('amazon') && node['platform_version'] == "2"
-  dependency_package_name = "node-dependencies"
-  dependency_folder_name = "node"
-end
 
 # Install dependencies from S3 pre-built packages (production mode)
 # When install_python_from_internet is true, dependencies are installed from PyPI instead

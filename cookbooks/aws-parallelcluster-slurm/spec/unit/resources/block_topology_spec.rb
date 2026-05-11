@@ -49,32 +49,25 @@ describe 'block_topology:configure' do
           runner
         end
 
-        if platform == 'amazon' && version == '2'
-          it 'does not configures block_topology' do
-            expect(chef_run).not_to create_template("#{slurm_install_dir}/etc/slurm_parallelcluster_topology.conf")
-            expect(chef_run).not_to run_execute('generate_topology_config')
-          end
-        else
-          it 'creates the topology configuration template' do
-            expect(chef_run).to create_template("#{slurm_install_dir}/etc/slurm_parallelcluster_topology.conf")
-              .with(source: 'slurm/block_topology/slurm_parallelcluster_topology.conf.erb')
-              .with(user: 'root')
-              .with(group: 'root')
-              .with(mode: '0644')
-          end
-          command = "#{cookbook_env}/bin/python #{script_dir}/slurm/pcluster_topology_generator.py" \
-            " --output-file #{slurm_install_dir}/etc/topology.conf" \
-            " --block-sizes #{block_sizes}" \
-            " --input-file #{cluster_config}"
-          command_to_exe = if ['true', 'yes', true].include?(force_configuration)
-                             "#{command}#{force_configuration_extra_args}"
-                           else
-                             "#{command}"
-                           end
-          it 'generates topology config when block sizes are present' do
-            expect(chef_run).to run_execute('generate_topology_config')
-              .with(command: command_to_exe)
-          end
+        it 'creates the topology configuration template' do
+          expect(chef_run).to create_template("#{slurm_install_dir}/etc/slurm_parallelcluster_topology.conf")
+            .with(source: 'slurm/block_topology/slurm_parallelcluster_topology.conf.erb')
+            .with(user: 'root')
+            .with(group: 'root')
+            .with(mode: '0644')
+        end
+        command = "#{cookbook_env}/bin/python #{script_dir}/slurm/pcluster_topology_generator.py" \
+          " --output-file #{slurm_install_dir}/etc/topology.conf" \
+          " --block-sizes #{block_sizes}" \
+          " --input-file #{cluster_config}"
+        command_to_exe = if ['true', 'yes', true].include?(force_configuration)
+                           "#{command}#{force_configuration_extra_args}"
+                         else
+                           "#{command}"
+                         end
+        it 'generates topology config when block sizes are present' do
+          expect(chef_run).to run_execute('generate_topology_config')
+            .with(command: command_to_exe)
         end
       end
     end
@@ -106,42 +99,34 @@ describe 'block_topology:update' do
             runner
           end
 
-          if platform == 'amazon' && version == '2'
-            it 'does not configures block_topology' do
-              expect(chef_run).not_to create_template("#{slurm_install_dir}/etc/slurm_parallelcluster_topology.conf")
+          command = "#{cookbook_env}/bin/python #{script_dir}/slurm/pcluster_topology_generator.py" \
+            " --output-file #{slurm_install_dir}/etc/topology.conf" \
+            " --input-file #{cluster_config}"\
+            "#{topo_command_args}"
+          command_to_exe = if ['true', 'yes', true].include?(force_configuration)
+                             "#{command}#{force_configuration_extra_args}"
+                           else
+                             "#{command}"
+                           end
+
+          it 'creates the topology configuration template' do
+            expect(chef_run).to create_template("#{slurm_install_dir}/etc/slurm_parallelcluster_topology.conf")
+              .with(source: 'slurm/block_topology/slurm_parallelcluster_topology.conf.erb')
+              .with(user: 'root')
+              .with(group: 'root')
+              .with(mode: '0644')
+          end
+
+          if topo_command_args.nil?
+            it 'update or cleanup topology.conf when block sizes are present' do
               expect(chef_run).not_to run_execute('update or cleanup topology.conf')
+                .with(command: command_to_exe)
             end
           else
-            command = "#{cookbook_env}/bin/python #{script_dir}/slurm/pcluster_topology_generator.py" \
-              " --output-file #{slurm_install_dir}/etc/topology.conf" \
-              " --input-file #{cluster_config}"\
-              "#{topo_command_args}"
-            command_to_exe = if ['true', 'yes', true].include?(force_configuration)
-                               "#{command}#{force_configuration_extra_args}"
-                             else
-                               "#{command}"
-                             end
-
-            it 'creates the topology configuration template' do
-              expect(chef_run).to create_template("#{slurm_install_dir}/etc/slurm_parallelcluster_topology.conf")
-                .with(source: 'slurm/block_topology/slurm_parallelcluster_topology.conf.erb')
-                .with(user: 'root')
-                .with(group: 'root')
-                .with(mode: '0644')
+            it 'update or cleanup topology.conf when block sizes are present' do
+              expect(chef_run).to run_execute('update or cleanup topology.conf')
+                .with(command: command_to_exe)
             end
-
-            if topo_command_args.nil?
-              it 'update or cleanup topology.conf when block sizes are present' do
-                expect(chef_run).not_to run_execute('update or cleanup topology.conf')
-                  .with(command: command_to_exe)
-              end
-            else
-              it 'update or cleanup topology.conf when block sizes are present' do
-                expect(chef_run).to run_execute('update or cleanup topology.conf')
-                  .with(command: command_to_exe)
-              end
-            end
-
           end
         end
       end

@@ -31,12 +31,6 @@ lifecycle:
       docker commit ${docker_id} pcluster-${KITCHEN_PHASE}/${KITCHEN_INSTANCE_NAME}:latest
 
 platforms:
-  - name: alinux2
-    driver:
-      image: <% if ENV['KITCHEN_ALINUX2_IMAGE'] %> <%= ENV['KITCHEN_ALINUX2_IMAGE'] %> <% else %> dokken/amazonlinux-2 <% end %>
-    attributes:
-      cluster:
-        base_os: alinux2
   - name: alinux-2023
     driver:
       image: <% if ENV['KITCHEN_ALINUX2023_IMAGE'] %> <%= ENV['KITCHEN_ALINUX2023_IMAGE'] %> <% else %> dokken/amazonlinux-2023 <% end %>

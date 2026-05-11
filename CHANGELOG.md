@@ -19,6 +19,10 @@ via custom Slurm settings or the cluster name contains upper-case letters.
 - Fix slurmrestd failing to start on AL2023 because the http-parser library was not discoverable by the dynamic linker.
 - Fix compute node bootstrap hanging without a clear error when the compute subnet cannot reach DynamoDB.
 
+**DEPRECATIONS**
+- Amazon Linux 2 is no longer supported.
+- AWS Batch as a scheduler is no longer supported.
+
 3.15.0
 ------
 

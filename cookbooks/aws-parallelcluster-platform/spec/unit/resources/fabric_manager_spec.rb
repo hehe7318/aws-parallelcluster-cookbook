@@ -169,7 +169,7 @@ describe 'fabric_manager:setup' do
   for_all_oses do |platform, version|
     context "on #{platform}#{version}" do
       cached(:fabric_manager_version) { nvidia_driver_version }
-      cached(:fabric_manager_package) { platform == 'amazon' && version == '2' ? 'nvidia-fabric-manager' : 'nvidia-fabricmanager' }
+      cached(:fabric_manager_package) { 'nvidia-fabricmanager' }
 
       context 'when fabric manager is to install' do
         cached(:chef_run) do
@@ -222,7 +222,7 @@ describe 'fabric_manager:configure' do
   [true, false].each do |is_gb200|
     for_all_oses do |platform, version|
       context "on #{platform}#{version} on #{is_gb200} gb200 node" do
-        cached(:fabric_manager_package) { platform == 'amazon' && version == '2' ? 'nvidia-fabric-manager' : 'nvidia-fabricmanager' }
+        cached(:fabric_manager_package) { 'nvidia-fabricmanager' }
         cached(:fabric_manager_version) { nvidia_driver_version }
 
         context('when fabric manager is required (multiple GPUs with bridges)') do

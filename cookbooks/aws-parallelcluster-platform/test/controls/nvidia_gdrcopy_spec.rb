@@ -11,7 +11,7 @@
 
 control 'tag:install_expected_versions_of_nvidia_gdrcopy_installed' do
   only_if do
-    !(os_properties.centos7? && os_properties.arm?) && !instance.custom_ami? &&
+    !instance.custom_ami? &&
       (node['cluster']['nvidia']['enabled'] == 'yes' || node['cluster']['nvidia']['enabled'] == true)
   end
 
@@ -25,8 +25,7 @@ end
 
 control 'tag:config_gdrcopy_enabled_on_graphic_instances' do
   only_if do
-    !(os_properties.centos7? && os_properties.arm?) &&
-      !instance.custom_ami? && instance.graphic?
+    !instance.custom_ami? && instance.graphic?
   end
 
   describe 'gdrcopy service should be enabled' do
@@ -46,8 +45,7 @@ end
 
 control 'tag:config_gdrcopy_disabled_on_non_graphic_instances' do
   only_if do
-    !(os_properties.centos7? && os_properties.arm?) &&
-      !instance.custom_ami? && !instance.graphic? &&
+    !instance.custom_ami? && !instance.graphic? &&
       (node['cluster']['nvidia']['enabled'] == 'yes' || node['cluster']['nvidia']['enabled'] == true)
   end
 

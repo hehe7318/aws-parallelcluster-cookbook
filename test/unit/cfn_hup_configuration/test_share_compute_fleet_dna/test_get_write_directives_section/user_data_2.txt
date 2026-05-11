@@ -19,7 +19,7 @@ write_files:
     permissions: '0644'
     owner: root:root
     content: |
-      {"cluster":{"base_os":"alinux2"}}
+      {"cluster":{"base_os":"alinux2023"}}
   - path: /tmp/extra.json
     permissions: '0644'
     owner: root:root

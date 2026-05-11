@@ -11,16 +11,9 @@
 
 control 'tag:install_nvidia_dcgm_installed' do
   only_if do
-    ['yes', true, 'true'].include?(node['cluster']['nvidia']['enabled']) && !instance.custom_ami? &&
-      (!os_properties.arm? || !(os_properties.alinux2? || os_properties.centos?))
+    ['yes', true, 'true'].include?(node['cluster']['nvidia']['enabled']) && !instance.custom_ami? && !os_properties.arm?
   end
-  if os_properties.alinux2?
-    describe package('datacenter-gpu-manager') do
-      it { should be_installed }
-    end
-  else
-    describe package('datacenter-gpu-manager-4-cuda13') do
-      it { should be_installed }
-    end
+  describe package('datacenter-gpu-manager-4-cuda13') do
+    it { should be_installed }
   end
 end

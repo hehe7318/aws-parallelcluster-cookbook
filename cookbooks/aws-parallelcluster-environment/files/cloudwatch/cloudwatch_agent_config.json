@@ -13,7 +13,6 @@
       "file_path": "/var/log/messages",
       "log_stream_name": "system-messages",
       "schedulers": [
-        "awsbatch",
         "slurm"
       ],
       "platforms": [
@@ -35,7 +34,6 @@
       "file_path": "/var/log/syslog",
       "log_stream_name": "syslog",
       "schedulers": [
-        "awsbatch",
         "slurm"
       ],
       "platforms": [
@@ -54,7 +52,6 @@
       "file_path": "/var/log/cfn-init.log",
       "log_stream_name": "cfn-init",
       "schedulers": [
-        "awsbatch",
         "slurm"
       ],
       "platforms": {{ default_platforms | tojson}},
@@ -70,7 +67,6 @@
       "file_path": "/var/log/cfn-hup.log",
       "log_stream_name": "cfn-hup",
       "schedulers": [
-        "awsbatch",
         "slurm"
       ],
       "platforms": {{ default_platforms | tojson}},
@@ -86,7 +82,6 @@
       "file_path": "/var/log/chef-client.log",
       "log_stream_name": "chef-client",
       "schedulers": [
-        "awsbatch",
         "slurm"
       ],
       "platforms": {{ default_platforms | tojson}},
@@ -116,7 +111,6 @@
       "file_path": "/var/log/cloud-init.log",
       "log_stream_name": "cloud-init",
       "schedulers": [
-        "awsbatch",
         "slurm"
       ],
       "platforms": {{ default_platforms | tojson}},
@@ -148,7 +142,6 @@
       "file_path": "/var/log/supervisord.log",
       "log_stream_name": "supervisord",
       "schedulers": [
-        "awsbatch",
         "slurm"
       ],
       "platforms": {{ default_platforms | tojson}},
@@ -308,7 +301,6 @@
       "file_path": "/var/log/parallelcluster/pcluster_dcv_authenticator.log",
       "log_stream_name": "dcv-authenticator",
       "schedulers": [
-        "awsbatch",
         "slurm"
       ],
       "platforms": {{ default_platforms | tojson}},
@@ -392,7 +384,6 @@
       "file_path": "/var/log/parallelcluster/pcluster_dcv_connect.log",
       "log_stream_name": "dcv-ext-authenticator",
       "schedulers": [
-        "awsbatch",
         "slurm"
       ],
       "platforms": {{ default_platforms | tojson}},
@@ -412,7 +403,6 @@
       "file_path": "/var/log/dcv/server.log",
       "log_stream_name": "dcv-server",
       "schedulers": [
-        "awsbatch",
         "slurm"
       ],
       "platforms": {{ default_platforms | tojson}},
@@ -432,7 +422,6 @@
       "file_path": "/var/log/dcv/sessionlauncher.log",
       "log_stream_name": "dcv-session-launcher",
       "schedulers": [
-        "awsbatch",
         "slurm"
       ],
       "platforms": {{ default_platforms | tojson}},
@@ -452,7 +441,6 @@
       "file_path": "/var/log/dcv/agent.*.log",
       "log_stream_name": "dcv-agent",
       "schedulers": [
-        "awsbatch",
         "slurm"
       ],
       "platforms": {{ default_platforms | tojson}},
@@ -472,7 +460,6 @@
       "file_path": "/var/log/dcv/dcv-xsession.*.log",
       "log_stream_name": "dcv-xsession",
       "schedulers": [
-        "awsbatch",
         "slurm"
       ],
       "platforms": {{ default_platforms | tojson}},
@@ -492,7 +479,6 @@
       "file_path": "/var/log/dcv/Xdcv.*.log",
       "log_stream_name": "Xdcv",
       "schedulers": [
-        "awsbatch",
         "slurm"
       ],
       "platforms": {{ default_platforms | tojson}},

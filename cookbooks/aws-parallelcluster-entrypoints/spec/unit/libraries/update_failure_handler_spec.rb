@@ -97,31 +97,6 @@ describe ErrorHandlers::UpdateFailureHandler do
         handler.report
       end
     end
-
-    context 'when scheduler is not slurm' do
-      let(:scheduler) { 'awsbatch' }
-
-      it 'skips recovery and returns early' do
-        expect(handler).not_to receive(:write_error_report)
-        expect(handler).not_to receive(:run_recovery)
-        allow(Chef::Log).to receive(:info)
-        expect(Chef::Log).to receive(:info).with(/Node type is HeadNode and scheduler is awsbatch, recovery from update failure only executes on the HeadNode with slurm scheduler/)
-        handler.report
-      end
-    end
-
-    context 'when node type is not HeadNode and scheduler is not slurm' do
-      let(:node_type) { 'ComputeFleet' }
-      let(:scheduler) { 'awsbatch' }
-
-      it 'skips recovery and returns early' do
-        expect(handler).not_to receive(:write_error_report)
-        expect(handler).not_to receive(:run_recovery)
-        allow(Chef::Log).to receive(:info)
-        expect(Chef::Log).to receive(:info).with(/Node type is ComputeFleet and scheduler is awsbatch, recovery from update failure only executes on the HeadNode with slurm scheduler/)
-        handler.report
-      end
-    end
   end
 
   describe '#write_error_report' do

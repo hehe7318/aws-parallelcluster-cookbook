@@ -8,20 +8,8 @@ describe 'aws-parallelcluster-computefleet::custom_parallelcluster_node' do
       cached(:arch) { 'x86_64' }
       cached(:region) { 'any-region' }
       cached(:python_version) { 'python_version' }
-      cached(:dependency_pkg_name_suffix) do
-        if platform == 'amazon' && version == '2'
-          'node-dependencies'
-        else
-          "pypi-node-dependencies-#{python_version}-#{arch}"
-        end
-      end
-      cached(:dependency_folder_name_suffix) do
-        if platform == 'amazon' && version == '2'
-          "node"
-        else
-          dependency_pkg_name_suffix
-        end
-      end
+      cached(:dependency_pkg_name_suffix) { "pypi-node-dependencies-#{python_version}-#{arch}" }
+      cached(:dependency_folder_name_suffix) { dependency_pkg_name_suffix }
       cached(:virtualenv_path) { "#{base_dir}/pyenv/versions/#{python_version}/envs/node_virtualenv" }
       cached(:cookbook_virtualenv_path) { "#{base_dir}/pyenv/versions/#{python_version}/envs/cookbook_virtualenv" }
       cached(:custom_node_s3_url) { "#{s3_url}/pyenv/versions/#{python_version}/envs/node_virtualenv" }

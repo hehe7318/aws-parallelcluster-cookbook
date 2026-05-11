@@ -16,9 +16,6 @@
 def dcv_sha256sum
   if arm_instance?
     case el_string
-    when "amzn2"
-      # ALINUX2
-      'e706e6531a979ce325a8ffd5eeb4a377f7c897f0df9a614e6d59526bc188c3b3'
     when "amzn2023"
       # ALINUX2023
       "8c9d29b41ee5f9fdfced4ae257c8e6444298a61da62beb2a38add1783c2e3858"
@@ -33,9 +30,6 @@ def dcv_sha256sum
     end
   else
     case el_string
-    when "amzn2"
-      # ALINUX2
-      '81d120b639963dff9d7c60f73dda254e2adeb42fcdb3390e1396a40395812865'
     when "amzn2023"
       # ALINUX2023
       "d98eb986f3b547af22a7732ca26cb6541c3842b9ed57218f503c9acc3b29e7e2"
@@ -112,11 +106,7 @@ action_class do
       directory dcv_gl_deps_dir
 
       # Use --resolve to download all transitive dependencies
-      download_cmd = if el_string == 'amzn2'
-                       "yum install --downloadonly --downloaddir=#{dcv_gl_deps_dir} #{dcv_gl_package}"
-                     else
-                       "dnf download --destdir=#{dcv_gl_deps_dir} --resolve #{dcv_gl_package}"
-                     end
+      download_cmd = "dnf download --destdir=#{dcv_gl_deps_dir} --resolve #{dcv_gl_package}"
       execute 'download dcv-gl dependencies' do
         command download_cmd
         retries 3

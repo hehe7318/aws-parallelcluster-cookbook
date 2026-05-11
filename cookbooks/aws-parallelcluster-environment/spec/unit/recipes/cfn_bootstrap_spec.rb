@@ -7,20 +7,8 @@ describe 'aws-parallelcluster-environment::cfn_bootstrap' do
       cached(:s3_url) { 's3://url' }
       cached(:base_dir) { 'base_dir' }
       cached(:python_version) { "#{node['cluster']['python-version']}" }
-      cached(:dependecy_package_name_suffix) do
-        if platform == 'amazon' && version == '2'
-          "cfn-dependencies"
-        else
-          "pypi-cfn-dependencies-#{node['cluster']['python-major-minor-version']}-#{arch}"
-        end
-      end
-      cached(:dependecy_folder_name) do
-        if platform == 'amazon' && version == '2'
-          "cfn"
-        else
-          dependecy_package_name_suffix
-        end
-      end
+      cached(:dependecy_package_name_suffix) { "pypi-cfn-dependencies-#{node['cluster']['python-major-minor-version']}-#{arch}" }
+      cached(:dependecy_folder_name) { dependecy_package_name_suffix }
       cached(:cfnbootstrap_package) { "aws-cfn-bootstrap-py3-#{node['cluster']['cfn_bootstrap']['version']}.tar.gz" }
       cached(:system_pyenv_root) { 'system_pyenv_root' }
       cached(:virtualenv_path) { "system_pyenv_root/versions/#{python_version}/envs/cfn_bootstrap_virtualenv" }

@@ -182,7 +182,6 @@ describe 'gdrcopy:setup' do
       cached(:gdrcopy_arch) { 'gdrcopy_arch' }
       cached(:gdrcopy_platform) do
         platforms = {
-          'amazon2' => 'amzn-2',
           'amazon2023' => 'amzn-2023',
           'centos7' => 'el7',
           'rhel8' => 'el8',
