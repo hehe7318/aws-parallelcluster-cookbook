@@ -81,7 +81,7 @@ provisioner:
   log_level: info
 
 platforms:
-  - name: alinux-2023  # We are adding a "-" in the name to avoid having alinux2 as prefix of alinux2023 and be able to distinguish them on Inspec
+  - name: alinux2023
     driver_plugin: ec2
     driver:
       <% if ENV['KITCHEN_ALINUX2023_AMI'] %>
