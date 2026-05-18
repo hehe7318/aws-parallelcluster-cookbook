@@ -276,7 +276,7 @@ def dcv_gpu_accel_supported?
 end
 
 def dcv_url
-  "#{node['cluster']['artifacts_s3_url']}/dependencies/dcv/#{dcv_package}.tgz"
+  "#{node['cluster']['dcv']['base_url']}/#{dcv_package}.tgz"
 end
 
 def dcv_tarball

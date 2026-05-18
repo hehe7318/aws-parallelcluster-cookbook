@@ -8,6 +8,15 @@ default['cluster']['sysctl']['ipv4']['gc_thresh3'] = 16_384
 
 # ArmPL
 default['conditions']['arm_pl_supported'] = arm_instance?
+default['cluster']['armpl']['version'] = '24.10'
+default['cluster']['armpl']['base_url'] = "#{node['cluster']['artifacts_s3_url']}/armpl"
+default['cluster']['armpl']['gcc']['patch_version'] = '0'
+default['cluster']['gcc']['base_url'] = "#{node['cluster']['artifacts_s3_url']}/dependencies/gcc"
+
+# Stunnel
+default['cluster']['stunnel']['version'] = '5.67'
+default['cluster']['stunnel']['sha256'] = '3086939ee6407516c59b0ba3fbf555338f9d52f459bcab6337c0f00e91ea8456'
+default['cluster']['stunnel']['base_url'] = "#{node['cluster']['artifacts_s3_url']}/stunnel"
 
 # Enroot
 default['cluster']['enroot']['version'] = '3.4.1'
@@ -63,6 +72,7 @@ default['cluster']['dcv']['authenticator']['private_key'] = "#{node['cluster']['
 default['cluster']['dcv']['authenticator']['virtualenv_name'] = "dcv_authenticator_virtualenv"
 default['cluster']['dcv']['authenticator']['virtualenv_path'] = "#{node['cluster']['system_pyenv_root']}/versions/#{node['cluster']['python-version']}/envs/#{node['cluster']['dcv']['authenticator']['virtualenv_name']}"
 default['cluster']['dcv']['version'] = '2025.0-20103'
+default['cluster']['dcv']['base_url'] = "#{node['cluster']['artifacts_s3_url']}/dependencies/dcv"
 default['cluster']['dcv_port'] = 8443
 
 default['cluster']['dcv']['server']['version'] = '2025.0.20103-1'
