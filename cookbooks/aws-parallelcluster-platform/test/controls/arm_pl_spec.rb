@@ -43,7 +43,7 @@ control 'tag:install_arm_pl_installed' do
 
   describe bash("#{setup} && module load #{armpl_module_general_name} && "\
                 "cd #{armpl_install_dir}/examples_lp64 && "\
-                "make clean") do
+                "make clean && make") do
     its('exit_status') { should eq(0) }
     its('stdout') { should match /testing: no example difference files were generated/i }
     its('stdout') { should match /test passed ok/i }
