@@ -194,3 +194,42 @@ def run_cmd(cmd, timeout: nil, raise_on_error: false)
   Chef::Log.info("Stderr: #{result.stderr}") unless result.stderr.strip.empty?
   result
 end
+
+# Installs RPM packages on RHEL/Rocky with a metadata-refresh + mirror-rotation
+# retry strategy that mitigates transient failures caused by out-of-sync RHUI
+# mirrors (e.g. "No match for argument: <pkg>-<version>", or rpm transaction
+# lock contention with the dnf-makecache timer).
+#
+# Strategy:
+#   1. `dnf install -y --refresh <pkgs>` forces DNF to refresh metadata from
+#      the mirror it is currently using.
+#   2. `dnf clean metadata` between attempts forces DNF to re-evaluate
+#      available mirrors and potentially pick a different one next attempt.
+#
+# @param packages [Array<String>, String] Package names (optionally version-pinned)
+# @param max_retries [Integer] Maximum number of retry attempts (default: 10)
+# @param retry_delay [Integer] Seconds to wait between retries (default: 5)
+#
+# @example
+#   dnf_install_with_refresh(%w(dkms rpm-build check check-devel subunit))
+#
+def dnf_install_with_refresh(packages, max_retries: 10, retry_delay: 5)
+  packages = Array(packages)
+  Chef::Log.info("Installing packages with mirror refresh retry: #{packages.join(', ')}")
+
+  on_retry = lambda do |_attempt, _exception|
+    # This cleanup forces DNF to re-evaluate available mirrors
+    # and which mirror to use on the next attempt.
+    run_cmd('dnf clean metadata')
+  end
+
+  with_retries(
+    max_retries: max_retries,
+    retry_delay: retry_delay,
+    on_retry: on_retry
+  ) do
+    # --refresh forces DNF to refresh the metadata from the mirror it's currently using.
+    run_cmd("dnf install -y --refresh #{packages.join(' ')}", raise_on_error: true)
+    Chef::Log.info("Package installation succeeded")
+  end
+end

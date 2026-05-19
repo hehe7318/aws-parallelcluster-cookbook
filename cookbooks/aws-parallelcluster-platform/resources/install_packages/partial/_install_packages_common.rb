@@ -19,6 +19,12 @@ property :packages, [String, Array],
          default: lazy { default_packages },
          description: 'Packages for the node'
 
+action :install do
+  robust_package "install_packages #{new_resource.name}" do
+    packages new_resource.packages
+  end
+end
+
 action :install_base_packages do
   install_packages 'default' do
     action :install

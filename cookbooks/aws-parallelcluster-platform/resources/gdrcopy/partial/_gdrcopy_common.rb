@@ -51,9 +51,8 @@ action :setup do
     action :update
   end
 
-  package gdrcopy_build_dependencies do
-    retries 3
-    retry_delay 5
+  robust_package 'install gdrcopy build dependencies' do
+    packages gdrcopy_build_dependencies
   end
 
   bash 'Install NVIDIA GDRCopy' do

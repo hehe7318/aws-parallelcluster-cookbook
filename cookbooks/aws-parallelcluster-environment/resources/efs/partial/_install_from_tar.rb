@@ -23,9 +23,8 @@ action :install_utils do
     action :update
   end
 
-  package prerequisites do
-    retries 3
-    retry_delay 5
+  robust_package 'install efs-utils prerequisites' do
+    packages prerequisites
   end
 
   directory node['cluster']['sources_dir'] do

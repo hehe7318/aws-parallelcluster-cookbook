@@ -15,9 +15,8 @@
 action :install_package do
   return unless nvidia_enabled? || nvidia_installed?
 
-  package prerequisites do
-    retries 3
-    retry_delay 5
+  robust_package 'install enroot prerequisites' do
+    packages prerequisites
   end
 
   bash "Install enroot" do

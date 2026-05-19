@@ -155,9 +155,8 @@ describe 'efs:install_utils' do
         end
 
         it 'installs prerequisites' do
-          is_expected.to install_package(required_packages[platform])
-            .with(retries: 3)
-            .with(retry_delay: 5)
+          is_expected.to install_robust_package('install efs-utils prerequisites')
+            .with(packages: required_packages[platform])
         end
 
         it 'downloads tarball' do

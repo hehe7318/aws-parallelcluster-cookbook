@@ -24,19 +24,10 @@ class ConvergeSlurmDependencies
 end
 
 describe 'slurm_dependencies' do
-  shared_examples 'installs packages from OS repos via package resource' do |expected_packages|
-    it 'installs expected packages' do
-      is_expected.to install_package(expected_packages)
-    end
-
-    it 'does not build http-parser from source' do
-      is_expected.not_to run_bash('make install')
-    end
-  end
-
-  shared_examples 'installs packages from OS repos via dnf ruby_block' do
-    it 'installs packages with mirror refresh retry logic' do
-      is_expected.to run_ruby_block('install_packages_with_metadata_refresh')
+  shared_examples 'installs packages from OS repos via robust_package' do |expected_packages|
+    it 'installs expected packages via robust_package' do
+      is_expected.to install_robust_package('install_packages install')
+        .with(packages: expected_packages)
     end
 
     it 'does not build http-parser from source' do
@@ -94,16 +85,16 @@ describe 'slurm_dependencies' do
 
   context "on redhat8" do
     include_context 'converge slurm_dependencies', 'redhat', '8'
-    include_examples 'installs packages from OS repos via dnf ruby_block'
+    include_examples 'installs packages from OS repos via robust_package', %w(json-c-devel http-parser-devel lua-devel perl dbus-devel)
   end
 
   context "on rocky8" do
     include_context 'converge slurm_dependencies', 'rocky', '8'
-    include_examples 'installs packages from OS repos via dnf ruby_block'
+    include_examples 'installs packages from OS repos via robust_package', %w(json-c-devel http-parser-devel lua-devel perl dbus-devel)
   end
 
   context "on ubuntu22.04" do
     include_context 'converge slurm_dependencies', 'ubuntu', '22.04'
-    include_examples 'installs packages from OS repos via package resource', %w(libjson-c-dev libhttp-parser-dev libswitch-perl liblua5.3-dev)
+    include_examples 'installs packages from OS repos via robust_package', %w(libjson-c-dev libhttp-parser-dev libswitch-perl liblua5.3-dev)
   end
 end

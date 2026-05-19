@@ -40,16 +40,16 @@ describe 'install_packages:setup' do
               .with(flush_cache: { before: true })
           end
         else
-          it 'installs default packages with mirror refresh retry logic' do
-            is_expected.to run_ruby_block('install_packages_with_metadata_refresh')
+          it 'installs default packages via robust_package' do
+            is_expected.to install_robust_package('install_packages default')
+              .with(packages: default_packages)
           end
         end
 
       elsif platform == 'ubuntu'
-        it 'installs base packages' do
-          is_expected.to install_package(default_packages)
-            .with(retries: 10)
-            .with(retry_delay: 5)
+        it 'installs base packages via robust_package' do
+          is_expected.to install_robust_package('install_packages default')
+            .with(packages: default_packages)
         end
 
       else
