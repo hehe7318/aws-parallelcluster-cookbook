@@ -4,10 +4,6 @@ driver:
   pull_platform_image: false # Use the local images, prevent pull of docker images from Docker Hub,
   chef_version: 18.8.54
   chef_image: cincproject/cinc
-  env:
-    # Since the kernel version of the docker images is not in the expected pattern,
-    # KERNEL_RELEASE is set in the environment to override the system value.
-    - KERNEL_RELEASE=3.10.0-1160.42.2.el7.x86_64
 
 provisioner:
   name: dokken
