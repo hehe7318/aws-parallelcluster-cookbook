@@ -119,5 +119,3 @@ jobs:
         run: |
           cd ${{ matrix.cookbook }}
           chef exec rspec
-        env:
-          CHEF_LICENSE: accept-no-persist
