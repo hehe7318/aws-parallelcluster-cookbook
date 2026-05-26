@@ -244,7 +244,8 @@ describe 'gdrcopy:setup' do
       end
 
       it 'builds dependencies' do
-        is_expected.to install_package(gdrcopy_dependencies).with_retries(3).with_retry_delay(5)
+        is_expected.to install_robust_package('install gdrcopy build dependencies')
+          .with(packages: gdrcopy_dependencies)
       end
 
       cached(:installation_code) { chef_run.bash('Install NVIDIA GDRCopy').code }
