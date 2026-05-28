@@ -13,6 +13,9 @@ This file is used to list changes made in each version of the AWS ParallelCluste
 **CHANGES**
 - In GPU Health Check, skip DCGM diagnostics when NVIDIA MIG is enabled because dcgmi diag does not support MIG.
 
+**CHANGES**
+- Upgrade Slurm to version 25.11.6 (from 25.11.4).
+
 **BUG FIXES**
 - Fix cluster creation failure caused by Slurm accounting bootstrap failing when ClusterName is overridden 
 via custom Slurm settings or the cluster name contains upper-case letters.
