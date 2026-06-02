@@ -24,12 +24,8 @@ property :aws_domain, String
 # https://developer.arm.com/downloads/-/arm-compiler-for-linux
 #
 # Usually we upgrade gcc version as well (see below).
-# By default ArmPL and gcc are downloaded from a ParallelCluster S3 bucket
-# (managed via dependency_downloader_and_uploader). The armpl.base_url and
-# gcc.base_url attributes can be overridden (e.g. via ExtraChefAttributes) to
-# point at the public sources directly.
-property :armpl_major_minor_version, String, default: lazy { node['cluster']['armpl']['version'] }
-property :gcc_patch_version, String, default: lazy { node['cluster']['armpl']['gcc']['patch_version'] }
+property :armpl_major_minor_version, String
+property :gcc_patch_version, String
 
 action :setup do
   return unless node['conditions']['arm_pl_supported']
@@ -46,17 +42,10 @@ action :setup do
   build_tools 'Prerequisite: build tools'
   package %w(wget bzip2)
 
-  armpl_version = "#{new_resource.armpl_major_minor_version}"
+  armpl_version = "#{_armpl_major_minor_version}"
   armpl_tarball_name = "arm-performance-libraries_#{armpl_version}_#{package_manager}_gcc.tar"
 
-  # The ParallelCluster S3 mirror partitions tarballs by platform directory
-  # (armpl/RHEL-9/...), but Arm's public CDN does not (Version_X/...). Skip
-  # the platform segment when overridden to a non-S3 base_url.
-  armpl_url = if default_artifacts_url?(node['cluster']['armpl']['base_url'])
-                "#{node['cluster']['armpl']['base_url']}/#{armpl_platform}/#{armpl_tarball_name}"
-              else
-                "#{node['cluster']['armpl']['base_url']}/#{armpl_tarball_name}"
-              end
+  armpl_url = armpl_download_url(armpl_tarball_name)
 
   armpl_installer = "#{new_resource.sources_dir}/#{armpl_tarball_name}"
 
@@ -103,7 +92,7 @@ action :setup do
     )
   end
 
-  gcc_version = "#{gcc_major_minor_version}.#{new_resource.gcc_patch_version}"
+  gcc_version = "#{gcc_major_minor_version}.#{_gcc_patch_version}"
   gcc_url = "#{node['cluster']['gcc']['base_url']}/gcc-#{gcc_version}.tar.gz"
   gcc_tarball = "#{new_resource.sources_dir}/gcc-#{gcc_version}.tar.gz"
 
@@ -164,7 +153,7 @@ action :setup do
   # Complete versions are intentionally redundant.
   node.default['cluster']['armpl']['version'] = armpl_version
   node.default['cluster']['armpl']['gcc']['major_minor_version'] = gcc_major_minor_version
-  node.default['cluster']['armpl']['gcc']['patch_version'] = new_resource.gcc_patch_version
+  node.default['cluster']['armpl']['gcc']['patch_version'] = _gcc_patch_version
   node.default['cluster']['armpl']['gcc']['version'] = gcc_version
 
   node_attributes "dump node attributes"
@@ -180,6 +169,26 @@ action_class do
       'deb'
     else
       'rpm'
+    end
+  end
+
+  def _armpl_major_minor_version
+    new_resource.armpl_major_minor_version || node['cluster']['armpl']['version']
+  end
+
+  def _gcc_patch_version
+    new_resource.gcc_patch_version || node['cluster']['armpl']['gcc']['patch_version']
+  end
+
+  # The default S3 mirror partitions tarballs by platform (armpl/<platform>/),
+  # while a public source is not partitioned. Skip the platform segment when
+  # base_url is overridden.
+  def armpl_download_url(tarball_name)
+    base_url = node['cluster']['armpl']['base_url']
+    if default_artifacts_url?(base_url)
+      "#{base_url}/#{armpl_platform}/#{tarball_name}"
+    else
+      "#{base_url}/#{tarball_name}"
     end
   end
 end

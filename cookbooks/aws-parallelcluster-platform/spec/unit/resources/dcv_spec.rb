@@ -244,9 +244,8 @@ describe 'dcv:dcv_url' do
   end
 end
 
-# Tests for the dcv_url when dcv.base_url is overridden (e.g. via
-# ExtraChefAttributes) to point at a non-S3 source.
-describe 'dcv:dcv_url base_url override behavior' do
+# Tests for dcv_url construction for the default S3 base_url and an overridden base_url.
+describe 'dcv:dcv_url download URL construction' do
   for_all_oses do |platform, version|
     context "on #{platform}#{version}" do
       cached(:dcv_major_minor) { 'major.minor' }

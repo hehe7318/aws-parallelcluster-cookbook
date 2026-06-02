@@ -85,9 +85,9 @@ describe 'stunnel:setup' do
   end
 end
 
-# Tests for the stunnel tarball download URL when stunnel.base_url is overridden
-# (e.g. via ExtraChefAttributes) to point at a non-S3 source.
-describe 'stunnel:setup base_url override behavior' do
+# Tests for stunnel tarball download URL construction for the default S3 base_url
+# and an overridden base_url.
+describe 'stunnel download URL construction' do
   cached(:sources_dir) { 'sources_dir' }
   cached(:artifacts_s3_url) { 's3://artifacts_s3_url' }
   cached(:stunnel_version) { 'stunnel_version' }
