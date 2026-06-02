@@ -24,11 +24,12 @@ property :aws_domain, String
 # https://developer.arm.com/downloads/-/arm-compiler-for-linux
 #
 # Usually we upgrade gcc version as well (see below).
-# We upload ArmPL to a ParallelCluster bucket (account for it in scope of the upgrade) and download it from there
-# to install ArmPL on the AMI.
-# We download gcc directly from gnu.org repository to install correct gcc version on the AMI.
-property :armpl_major_minor_version, String, default: '24.10'
-property :gcc_patch_version, String, default: '0'
+# By default ArmPL and gcc are downloaded from a ParallelCluster S3 bucket
+# (managed via dependency_downloader_and_uploader). The armpl.base_url and
+# gcc.base_url attributes can be overridden (e.g. via ExtraChefAttributes) to
+# point at the public sources directly.
+property :armpl_major_minor_version, String, default: lazy { node['cluster']['armpl']['version'] }
+property :gcc_patch_version, String, default: lazy { node['cluster']['armpl']['gcc']['patch_version'] }
 
 action :setup do
   return unless node['conditions']['arm_pl_supported']
@@ -48,11 +49,14 @@ action :setup do
   armpl_version = "#{new_resource.armpl_major_minor_version}"
   armpl_tarball_name = "arm-performance-libraries_#{armpl_version}_#{package_manager}_gcc.tar"
 
-  armpl_url = %W(
-    #{node['cluster']['artifacts_s3_url']}
-    armpl/#{armpl_platform}
-    #{armpl_tarball_name}
-  ).join('/')
+  # The ParallelCluster S3 mirror partitions tarballs by platform directory
+  # (armpl/RHEL-9/...), but Arm's public CDN does not (Version_X/...). Skip
+  # the platform segment when overridden to a non-S3 base_url.
+  armpl_url = if default_artifacts_url?(node['cluster']['armpl']['base_url'])
+                "#{node['cluster']['armpl']['base_url']}/#{armpl_platform}/#{armpl_tarball_name}"
+              else
+                "#{node['cluster']['armpl']['base_url']}/#{armpl_tarball_name}"
+              end
 
   armpl_installer = "#{new_resource.sources_dir}/#{armpl_tarball_name}"
 
@@ -100,7 +104,7 @@ action :setup do
   end
 
   gcc_version = "#{gcc_major_minor_version}.#{new_resource.gcc_patch_version}"
-  gcc_url = "#{node['cluster']['artifacts_s3_url']}/dependencies/gcc/gcc-#{gcc_version}.tar.gz"
+  gcc_url = "#{node['cluster']['gcc']['base_url']}/gcc-#{gcc_version}.tar.gz"
   gcc_tarball = "#{new_resource.sources_dir}/gcc-#{gcc_version}.tar.gz"
 
   # Get gcc tarball

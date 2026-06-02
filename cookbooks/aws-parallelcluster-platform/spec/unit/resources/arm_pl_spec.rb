@@ -189,3 +189,90 @@ describe 'arm_pl:setup' do
     end
   end
 end
+
+# Tests for ArmPL and gcc download URL construction when the base_url attributes
+# are overridden (e.g. via ExtraChefAttributes) to point at a non-S3 source.
+#
+# Default S3 mirror partitions ArmPL tarballs by platform directory
+# (armpl/RHEL-9/...). A non-S3 source (Arm's public CDN) is not partitioned, so
+# the platform segment is skipped. gcc is always downloaded from gcc.base_url.
+describe 'arm_pl:setup base_url override behavior' do
+  for_all_oses do |platform, version|
+    context "on #{platform}#{version}" do
+      cached(:artifacts_s3_url) { 'https://REGION-aws-parallelcluster.s3.REGION.AWS_DOMAIN/archives' }
+      cached(:sources_dir) { 'sources_test_dir' }
+      cached(:package_manager) { platform == 'ubuntu' ? 'deb' : 'rpm' }
+      cached(:armpl_version) { '24.10' }
+      cached(:armpl_tarball_name) { "arm-performance-libraries_#{armpl_version}_#{package_manager}_gcc.tar" }
+      cached(:armpl_installer) { "#{sources_dir}/#{armpl_tarball_name}" }
+      cached(:armpl_platform) do
+        case platform
+        when 'centos'
+          'RHEL-7'
+        when 'ubuntu'
+          "Ubuntu-#{version}"
+        when 'amazon'
+          if version == '2023'
+            'RHEL-9'
+          end
+        else
+          "RHEL-#{version}"
+        end
+      end
+      cached(:gcc_major_minor_version) do
+        case "#{platform}#{version}"
+        when 'amazon2023', 'ubuntu24.04', 'ubuntu22.04', 'redhat9', 'rocky9'
+          '11.3'
+        else
+          '9.3'
+        end
+      end
+      cached(:gcc_patch_version) { '0' }
+      cached(:gcc_version) { "#{gcc_major_minor_version}.#{gcc_patch_version}" }
+      cached(:gcc_tarball) { "#{sources_dir}/gcc-#{gcc_version}.tar.gz" }
+
+      [
+        ['default S3 base_url', nil, nil, true],
+        ['overridden public base_url',
+         'https://fake-public.example.DOMAIN/armpl',
+         'https://fake-public.example.DOMAIN/gcc',
+         false],
+      ].each do |scenario, armpl_base_url, gcc_base_url, default_url|
+        context "with #{scenario}" do
+          cached(:expected_armpl_url) do
+            if default_url
+              "#{artifacts_s3_url}/armpl/#{armpl_platform}/#{armpl_tarball_name}"
+            else
+              "#{armpl_base_url}/#{armpl_tarball_name}"
+            end
+          end
+          cached(:expected_gcc_url) do
+            base = default_url ? "#{artifacts_s3_url}/dependencies/gcc" : gcc_base_url
+            "#{base}/gcc-#{gcc_version}.tar.gz"
+          end
+
+          cached(:chef_run) do
+            runner = runner(platform: platform, version: version, step_into: ['arm_pl']) do |node|
+              node.override['conditions']['arm_pl_supported'] = true
+              node.override['cluster']['sources_dir'] = sources_dir
+              node.override['cluster']['region'] = 'test_region'
+              node.override['cluster']['artifacts_s3_url'] = artifacts_s3_url
+              node.override['cluster']['armpl']['base_url'] = armpl_base_url if armpl_base_url
+              node.override['cluster']['gcc']['base_url'] = gcc_base_url if gcc_base_url
+            end
+            allow_any_instance_of(Object).to receive(:aws_domain).and_return('test_domain')
+            ConvergeArmPl.setup(runner)
+          end
+
+          it 'downloads the ArmPL tarball from the expected URL' do
+            is_expected.to create_remote_file(armpl_installer).with_source(expected_armpl_url)
+          end
+
+          it 'downloads the gcc tarball from the expected URL' do
+            is_expected.to create_if_missing_remote_file(gcc_tarball).with_source(expected_gcc_url)
+          end
+        end
+      end
+    end
+  end
+end
