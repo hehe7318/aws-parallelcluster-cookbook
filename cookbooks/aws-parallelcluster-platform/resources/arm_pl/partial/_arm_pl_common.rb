@@ -151,7 +151,6 @@ action :setup do
   # save ArmPL and gcc versions on the node environment so that they will be available
   # to dependencies (for instance, test code)
   # Complete versions are intentionally redundant.
-  node.default['cluster']['armpl']['version'] = armpl_version
   node.default['cluster']['armpl']['gcc']['major_minor_version'] = gcc_major_minor_version
   node.default['cluster']['armpl']['gcc']['patch_version'] = new_resource.gcc_patch_version
   node.default['cluster']['armpl']['gcc']['version'] = gcc_version
