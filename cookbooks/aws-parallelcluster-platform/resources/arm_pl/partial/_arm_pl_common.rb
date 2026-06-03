@@ -93,7 +93,7 @@ action :setup do
   end
 
   gcc_version = "#{gcc_major_minor_version}.#{new_resource.gcc_patch_version}"
-  gcc_url = "#{node['cluster']['gcc']['base_url']}/gcc-#{gcc_version}.tar.gz"
+  gcc_url = "#{node['cluster']['artifacts_s3_url']}/dependencies/gcc/gcc-#{gcc_version}.tar.gz"
   gcc_tarball = "#{new_resource.sources_dir}/gcc-#{gcc_version}.tar.gz"
 
   # Get gcc tarball
