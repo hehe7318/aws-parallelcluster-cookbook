@@ -200,7 +200,6 @@ describe 'arm_pl download URL construction' do
   PUBLIC_ARMPL_BASE_URL = 'https://fake-public.example.DOMAIN/armpl'.freeze
   PUBLIC_GCC_BASE_URL = 'https://fake-public.example.DOMAIN/gcc'.freeze
   ARMPL_VERSION = '99.99'.freeze
-  GCC_PATCH_VERSION = '9'.freeze
   SOURCES_DIR = 'SOURCES_DIR'.freeze
 
   ARMPL_PLATFORM_DIRS = {
@@ -225,7 +224,9 @@ describe 'arm_pl download URL construction' do
   for_all_oses do |platform, version|
     package_manager = (platform == 'ubuntu') ? 'deb' : 'rpm'
     armpl_tarball = "arm-performance-libraries_#{ARMPL_VERSION}_#{package_manager}_gcc.tar"
-    gcc_tarball = "gcc-#{GCC_MAJOR_MINOR["#{platform}#{version}"]}.#{GCC_PATCH_VERSION}.tar.gz"
+    # gcc major.minor is platform-specific and the patch defaults to 0 (gcc is a
+    # platform-pinned build tool, not overridable via attributes).
+    gcc_tarball = "gcc-#{GCC_MAJOR_MINOR["#{platform}#{version}"]}.0.tar.gz"
 
     [
       ['default S3 base_url',
@@ -244,7 +245,6 @@ describe 'arm_pl download URL construction' do
             node.override['cluster']['sources_dir'] = SOURCES_DIR
             node.override['cluster']['artifacts_s3_url'] = S3_ARTIFACTS_URL
             node.override['cluster']['armpl']['version'] = ARMPL_VERSION
-            node.override['cluster']['armpl']['gcc']['patch_version'] = GCC_PATCH_VERSION
             node.override['cluster']['armpl']['base_url'] = armpl_base_url if armpl_base_url
             node.override['cluster']['gcc']['base_url'] = gcc_base_url if gcc_base_url
           end

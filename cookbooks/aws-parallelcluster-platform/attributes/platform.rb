@@ -10,7 +10,6 @@ default['cluster']['sysctl']['ipv4']['gc_thresh3'] = 16_384
 default['conditions']['arm_pl_supported'] = arm_instance?
 default['cluster']['armpl']['version'] = '24.10'
 default['cluster']['armpl']['base_url'] = "#{node['cluster']['artifacts_s3_url']}/armpl"
-default['cluster']['armpl']['gcc']['patch_version'] = '0'
 default['cluster']['gcc']['base_url'] = "#{node['cluster']['artifacts_s3_url']}/dependencies/gcc"
 
 # Stunnel

@@ -25,7 +25,7 @@ property :aws_domain, String
 #
 # Usually we upgrade gcc version as well (see below).
 property :armpl_major_minor_version, String
-property :gcc_patch_version, String
+property :gcc_patch_version, String, default: '0'
 
 action :setup do
   return unless node['conditions']['arm_pl_supported']
@@ -92,7 +92,7 @@ action :setup do
     )
   end
 
-  gcc_version = "#{gcc_major_minor_version}.#{_gcc_patch_version}"
+  gcc_version = "#{gcc_major_minor_version}.#{new_resource.gcc_patch_version}"
   gcc_url = "#{node['cluster']['gcc']['base_url']}/gcc-#{gcc_version}.tar.gz"
   gcc_tarball = "#{new_resource.sources_dir}/gcc-#{gcc_version}.tar.gz"
 
@@ -153,7 +153,7 @@ action :setup do
   # Complete versions are intentionally redundant.
   node.default['cluster']['armpl']['version'] = armpl_version
   node.default['cluster']['armpl']['gcc']['major_minor_version'] = gcc_major_minor_version
-  node.default['cluster']['armpl']['gcc']['patch_version'] = _gcc_patch_version
+  node.default['cluster']['armpl']['gcc']['patch_version'] = new_resource.gcc_patch_version
   node.default['cluster']['armpl']['gcc']['version'] = gcc_version
 
   node_attributes "dump node attributes"
@@ -174,10 +174,6 @@ action_class do
 
   def _armpl_major_minor_version
     new_resource.armpl_major_minor_version || node['cluster']['armpl']['version']
-  end
-
-  def _gcc_patch_version
-    new_resource.gcc_patch_version || node['cluster']['armpl']['gcc']['patch_version']
   end
 
   # The default S3 mirror partitions tarballs by platform (armpl/<platform>/),
