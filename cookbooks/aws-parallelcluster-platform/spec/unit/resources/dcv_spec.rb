@@ -244,6 +244,45 @@ describe 'dcv:dcv_url' do
   end
 end
 
+# Tests for dcv_url construction for the default S3 base_url and an overridden base_url.
+describe 'dcv:dcv_url download URL construction' do
+  for_all_oses do |platform, version|
+    context "on #{platform}#{version}" do
+      cached(:dcv_major_minor) { 'major.minor' }
+      cached(:dcv_version) { "#{dcv_major_minor}-patch" }
+      cached(:dcv_package) { "dcv_package" }
+
+      [
+        ['default S3 base_url', nil],
+        ['overridden public base_url', 'https://fake-public.example.DOMAIN/dcv'],
+      ].each do |scenario, base_url|
+        context "with #{scenario}" do
+          cached(:chef_run) do
+            allow_any_instance_of(Object).to receive(:arm_instance?).and_return(false)
+            runner(platform: platform, version: version, step_into: ['dcv']) do |node|
+              node.override['cluster']['dcv']['version'] = dcv_version
+              node.override['cluster']['dcv']['base_url'] = base_url if base_url
+            end
+          end
+          cached(:node) { chef_run.node }
+          cached(:expected_base_url) { base_url || "#{node['cluster']['artifacts_s3_url']}/dependencies/dcv" }
+          cached(:resource) do
+            stubs_for_resource('dcv') do |res|
+              allow(res).to receive(:dcv_package).and_return(dcv_package)
+            end
+            ConvergeDcv.nothing(chef_run)
+            chef_run.find_resource('dcv', 'nothing')
+          end
+
+          it 'returns dcv_url built from the expected base_url' do
+            expect(resource.dcv_url).to eq("#{expected_base_url}/#{dcv_package}.tgz")
+          end
+        end
+      end
+    end
+  end
+end
+
 describe 'dcv:dcv_tarball' do
   for_all_oses do |platform, version|
     context "on #{platform}#{version}" do

@@ -84,3 +84,39 @@ describe 'stunnel:setup' do
     end
   end
 end
+
+# Tests for stunnel tarball download URL construction for the default S3 base_url
+# and an overridden base_url.
+describe 'stunnel download URL construction' do
+  cached(:sources_dir) { 'sources_dir' }
+  cached(:artifacts_s3_url) { 's3://artifacts_s3_url' }
+  cached(:stunnel_version) { 'stunnel_version' }
+  cached(:stunnel_checksum) { 'stunnel_checksum' }
+
+  for_all_oses do |platform, version|
+    [
+      ['default S3 base_url', nil],
+      ['overridden public base_url', 'https://fake-public.example.DOMAIN/stunnel'],
+    ].each do |scenario, base_url|
+      context "on #{platform}#{version} with #{scenario}" do
+        cached(:expected_base_url) { base_url || "#{artifacts_s3_url}/stunnel" }
+        cached(:stunnel_url) { "#{expected_base_url}/stunnel-#{stunnel_version}.tar.gz" }
+        cached(:stunnel_tarball) { "#{sources_dir}/stunnel-#{stunnel_version}.tar.gz" }
+
+        cached(:chef_run) do
+          runner = runner(platform: platform, version: version, step_into: ['stunnel']) do |node|
+            node.override['cluster']['sources_dir'] = sources_dir
+            node.override['cluster']['artifacts_s3_url'] = artifacts_s3_url
+            node.override['cluster']['stunnel']['base_url'] = base_url if base_url
+          end
+
+          ConvergeStunnel.setup(runner, stunnel_version: stunnel_version, stunnel_checksum: stunnel_checksum)
+        end
+
+        it 'downloads the tarball from the expected URL' do
+          is_expected.to create_if_missing_remote_file(stunnel_tarball).with_source(stunnel_url)
+        end
+      end
+    end
+  end
+end
