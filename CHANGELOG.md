@@ -14,6 +14,7 @@ This file is used to list changes made in each version of the AWS ParallelCluste
   
 
 **CHANGES**
+- Enforce NFSv4-only on the ParallelCluster-managed NFS server (head node). The NFSv3 client stack (rpcbind, rpc-statd, lockd) are unchanged, so cluster nodes can still mount external NFSv3 servers.
 - In GPU Health Check, skip DCGM diagnostics when NVIDIA MIG is enabled because dcgmi diag does not support MIG.
 
 **CHANGES**
