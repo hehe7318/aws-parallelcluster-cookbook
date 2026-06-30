@@ -16,9 +16,14 @@ This file is used to list changes made in each version of the AWS ParallelCluste
 **CHANGES**
 - Enforce NFSv4-only on the ParallelCluster-managed NFS server (head node). The NFSv3 client stack (rpcbind, rpc-statd, lockd) are unchanged, so cluster nodes can still mount external NFSv3 servers.
 - In GPU Health Check, skip DCGM diagnostics when NVIDIA MIG is enabled because dcgmi diag does not support MIG.
-
-**CHANGES**
 - Upgrade Slurm to version 25.11.6 (from 25.11.4).
+- Upgrade EFA installer to 1.49.0 (from 1.47.0).
+  - Efa-driver: efa-3.1.0
+  - Efa-config: efa-config-1.18-1
+  - Efa-profile: efa-profile-1.7-1
+  - Libfabric-aws: libfabric-aws-2.4.0-1
+  - Rdma-core: rdma-core-63.0-1
+  - Open MPI: openmpi40-aws-4.1.7-3 and openmpi50-aws-5.0.9-11
 - Install the aws-parallelcluster-node package from S3 in all regions instead of PyPI, to support air-gapped and proxied environments.
 
 **BUG FIXES**
