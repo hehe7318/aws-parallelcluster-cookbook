@@ -9,6 +9,9 @@ default['cluster']['shared_dir_login_nodes'] = "#{node['cluster']['base_dir']}/s
 default['cluster']['log_base_dir'] = '/var/log/parallelcluster'
 default['cluster']['etc_dir'] = '/etc/parallelcluster'
 
+default['cluster']['exec_tmp_dir'] = "#{node['cluster']['base_dir']}/tmp"
+default['cluster']['tmp_noexec'] = 'false'
+
 # Cluster Updates
 # The trigger file lives in shared storage. The head node writes the current cluster config
 # version on every cluster update; compute and login nodes poll the file via the

@@ -12,7 +12,7 @@
 control 'network_interfaces_configuration_script_created' do
   title 'Check script to configure network interface is created'
 
-  describe file('/tmp/configure_nw_interface.sh') do
+  describe file("#{node['cluster']['exec_tmp_dir']}/configure_nw_interface.sh") do
     it { should exist }
     its('mode') { should cmp '0644' }
     its('owner') { should eq 'root' }

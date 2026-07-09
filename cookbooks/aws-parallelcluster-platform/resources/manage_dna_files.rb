@@ -16,7 +16,7 @@ resource_name :manage_dna_files
 provides :manage_dna_files
 unified_mode true
 
-property :extra_chef_attribute_location, String, default: '/tmp/extra.json'
+property :extra_chef_attribute_location, String, default: lazy { "#{node['cluster']['exec_tmp_dir']}/extra.json" }
 
 default_action :share
 

@@ -56,6 +56,7 @@ describe 'aws-parallelcluster-platform::config_check_update_systemd_service' do
               .with(variables: {
                                monitor_shared_dir: node['cluster']['update']['dna_dir'],
                                launch_template_resource_id: node['cluster']['launch_template_id'],
+                               exec_tmp_dir: node['cluster']['exec_tmp_dir'],
                              })
           end
 

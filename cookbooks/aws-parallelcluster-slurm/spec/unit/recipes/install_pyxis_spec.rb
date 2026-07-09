@@ -20,6 +20,7 @@ describe 'aws-parallelcluster-slurm::install_pyxis' do
       cached(:cluster_sources_dir) { '/path/to/cluster/sources/dir' }
       cached(:cluster_examples_dir) { '/path/to/cluster/examples/dir' }
       cached(:slurm_install_dir) { '/path/to/slurm/install/dir' }
+      cached(:cluster_exec_tmp_dir) { '/path/to/exec/tmp/dir' }
       cached(:pyxis_version) { '1.2.3' }
       cached(:pyxis_runtime_dir) { '/path/to/pyxis/runtime/dir' }
       cached(:default_base_url) { "#{cluster_artifacts_s3_url}/dependencies/pyxis" }
@@ -38,6 +39,7 @@ describe 'aws-parallelcluster-slurm::install_pyxis' do
               node.override['cluster']['sources_dir'] = cluster_sources_dir
               node.override['cluster']['examples_dir'] = cluster_examples_dir
               node.override['cluster']['slurm']['install_dir'] = slurm_install_dir
+              node.override['cluster']['exec_tmp_dir'] = cluster_exec_tmp_dir
               node.override['cluster']['pyxis']['version'] = pyxis_version
               node.override['cluster']['pyxis']['runtime_path'] = pyxis_runtime_dir
               node.override['cluster']['pyxis']['base_url'] = override_url if override_url
@@ -64,8 +66,8 @@ describe 'aws-parallelcluster-slurm::install_pyxis' do
               retry_delay: 5,
               code: <<-CODE
     set -e
-    tar xf #{cluster_sources_dir}/pyxis-#{pyxis_version}.tar.gz -C /tmp
-    cd /tmp/pyxis-#{pyxis_version}
+    tar xf #{cluster_sources_dir}/pyxis-#{pyxis_version}.tar.gz -C #{cluster_exec_tmp_dir}
+    cd #{cluster_exec_tmp_dir}/pyxis-#{pyxis_version}
     CPPFLAGS='-I #{slurm_install_dir}/include/' make
     CPPFLAGS='-I #{slurm_install_dir}/include/' make install
               CODE

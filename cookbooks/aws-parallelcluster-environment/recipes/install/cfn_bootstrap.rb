@@ -72,7 +72,7 @@ elsif region.start_with?("us-iso")
   bucket = "s3.#{aws_region}.#{aws_domain}"
 end
 
-remote_file "/tmp/#{cfnbootstrap_package}" do
+remote_file "#{node['cluster']['exec_tmp_dir']}/#{cfnbootstrap_package}" do
   source "https://#{bucket}/cloudformation-examples/#{cfnbootstrap_package}"
   retries 3
   retry_delay 5
@@ -85,7 +85,7 @@ command = "#{virtualenv_path}/bin/pip install #{cfnbootstrap_package} #{pip_inst
 bash "Install CloudFormation helpers from #{cfnbootstrap_package}" do
   user 'root'
   group 'root'
-  cwd '/tmp'
+  cwd node['cluster']['exec_tmp_dir']
   code command
   creates "#{virtualenv_path}/bin/cfn-hup"
 end
