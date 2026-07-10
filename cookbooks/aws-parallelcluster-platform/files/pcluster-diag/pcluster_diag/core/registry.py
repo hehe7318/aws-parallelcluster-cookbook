@@ -21,6 +21,13 @@ from typing import Dict, List, Optional, Set, Tuple
 import click
 
 from pcluster_diag.checks.cfn_hup import CfnHupRunsOnlyOnHeadNode
+from pcluster_diag.checks.critical_paths import CriticalPathsHaveExpectedPermissions
+from pcluster_diag.checks.instance_profile import ImdsRoleMatchesCfnHupConfig
+from pcluster_diag.checks.reserved_users import (
+    ReservedGroupsHaveUniqueIds,
+    ReservedUsersExist,
+    ReservedUsersHaveUniqueIds,
+)
 from pcluster_diag.checks.sample import SampleCheck
 from pcluster_diag.models.check import Check
 from pcluster_diag.models.context import Context
@@ -123,4 +130,13 @@ class Registry:
 
 # The default Registry, in execution order. Concrete Checks are registered inline here by chaining
 # ``register`` (which returns the registry).
-DEFAULT_REGISTRY = Registry().register(CfnHupRunsOnlyOnHeadNode()).register(SampleCheck())
+DEFAULT_REGISTRY = (
+    Registry()
+    .register(CfnHupRunsOnlyOnHeadNode())
+    .register(ReservedUsersExist())
+    .register(ReservedUsersHaveUniqueIds())
+    .register(ReservedGroupsHaveUniqueIds())
+    .register(CriticalPathsHaveExpectedPermissions())
+    .register(ImdsRoleMatchesCfnHupConfig())
+    .register(SampleCheck())
+)
