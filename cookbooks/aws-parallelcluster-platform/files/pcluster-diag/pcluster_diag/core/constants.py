@@ -29,6 +29,12 @@ DEFAULT_BOOTSTRAPPED_PATH = BASE_DIR + "/.bootstrapped"
 # transitions; mirrors the cookbook attribute computefleet_status_path.
 COMPUTEFLEET_STATUS_PATH = SHARED_DIR + "/computefleet-status.json"
 
+# The munge authentication key.
+MUNGE_KEY_PATH = "/etc/munge/munge.key"
+
+# Slurm's StateSaveLocation directory.
+SLURM_STATE_SAVE_PATH = "/var/spool/slurm.state"
+
 # cfn-hup runs as a supervisord program (not a systemd service) managed via the cookbook virtualenv's
 # supervisorctl, reading the supervisord config installed by the cookbook.
 CFN_HUP_PROGRAM = "cfn-hup"

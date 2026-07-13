@@ -12,9 +12,11 @@
 
 """Unit tests for the critical-paths permission check."""
 
+import pytest
+
 from pcluster_diag.checks import critical_paths
 from pcluster_diag.checks.critical_paths import CriticalPath, CriticalPathsHaveExpectedPermissions
-from pcluster_diag.core.constants import COMPUTEFLEET_STATUS_PATH
+from pcluster_diag.core.constants import COMPUTEFLEET_STATUS_PATH, MUNGE_KEY_PATH, SLURM_STATE_SAVE_PATH
 from pcluster_diag.models.context import NodeType
 from pcluster_diag.models.result import Status
 from pcluster_diag.util.filesystem import PathStat
@@ -56,13 +58,18 @@ def _messages(result):
     return " | ".join(error.message for error in (result.errors or []))
 
 
-def test_default_critical_paths_include_computefleet_status():
-    entry = next(c for c in critical_paths.CRITICAL_PATHS if c.path == COMPUTEFLEET_STATUS_PATH)
+@pytest.mark.parametrize(
+    "path, owner, group, mode, node_types",
+    [
+        (COMPUTEFLEET_STATUS_PATH, "pcluster-admin", "pcluster-admin", "0755", (NodeType.HEAD,)),
+        (MUNGE_KEY_PATH, "munge", "munge", "0600", (NodeType.HEAD, NodeType.COMPUTE)),
+        (SLURM_STATE_SAVE_PATH, "slurm", "slurm", "0700", (NodeType.HEAD,)),
+    ],
+)
+def test_default_critical_paths_are_registered(path, owner, group, mode, node_types):
+    entry = next(c for c in critical_paths.CRITICAL_PATHS if c.path == path)
 
-    assert entry.owner == "pcluster-admin"
-    assert entry.group == "pcluster-admin"
-    assert entry.mode == "0755"
-    assert entry.node_types == (NodeType.HEAD,)
+    assert (entry.owner, entry.group, entry.mode, entry.node_types) == (owner, group, mode, node_types)
 
 
 def test_description():

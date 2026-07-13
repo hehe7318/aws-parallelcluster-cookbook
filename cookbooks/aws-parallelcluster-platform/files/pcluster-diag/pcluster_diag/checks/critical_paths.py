@@ -21,7 +21,15 @@ and the compute fleet gets stuck mid-transition (e.g. never leaving STOPPING).
 from dataclasses import dataclass
 from typing import List, Optional
 
-from pcluster_diag.core.constants import CLUSTER_ADMIN_GROUP, CLUSTER_ADMIN_USER, COMPUTEFLEET_STATUS_PATH
+from pcluster_diag.core.constants import (
+    CLUSTER_ADMIN_GROUP,
+    CLUSTER_ADMIN_USER,
+    COMPUTEFLEET_STATUS_PATH,
+    MUNGE_KEY_PATH,
+    MUNGE_USER,
+    SLURM_STATE_SAVE_PATH,
+    SLURM_USER,
+)
 from pcluster_diag.models.check import Check
 from pcluster_diag.models.check_error import CheckError
 from pcluster_diag.models.context import Context, NodeType
@@ -58,6 +66,23 @@ CRITICAL_PATHS: List[CriticalPath] = [
         owner=CLUSTER_ADMIN_USER,
         group=CLUSTER_ADMIN_GROUP,
         mode="0755",
+        node_types=(NodeType.HEAD,),
+    ),
+    # Munge underpins Slurm authentication; munged refuses to start if its key is not private to the
+    # munge user, breaking Slurm cluster-wide. Present wherever munge runs (head and compute).
+    CriticalPath(
+        path=MUNGE_KEY_PATH,
+        owner=MUNGE_USER,
+        group=MUNGE_USER,
+        mode="0600",
+        node_types=(NodeType.HEAD, NodeType.COMPUTE),
+    ),
+    # Slurm's StateSaveLocation; slurmctld cannot start if it is not owned by and private to the slurm user.
+    CriticalPath(
+        path=SLURM_STATE_SAVE_PATH,
+        owner=SLURM_USER,
+        group=SLURM_USER,
+        mode="0700",
         node_types=(NodeType.HEAD,),
     ),
 ]
