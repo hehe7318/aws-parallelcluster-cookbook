@@ -92,7 +92,7 @@ def test_get_compute_launch_template_ids(mocker, launch_template_config_content,
             "user_data_1.txt",
             [
                 {
-                    "path": "/tmp/dna.json",  # nosec B108
+                    "path": "/opt/parallelcluster/tmp/dna.json",
                     "permissions": "0644",
                     "owner": "root:root",
                     "content": '{"cluster":{"base_os":"alinux2023","cluster_name":"clustername",'
@@ -101,13 +101,13 @@ def test_get_compute_launch_template_ids(mocker, launch_template_config_content,
                     '"launch_template_id":"LoginNodeLaunchTemplate2736fab291f04e69"}}\n',
                 },
                 {
-                    "path": "/tmp/extra.json",  # nosec B108
+                    "path": "/opt/parallelcluster/tmp/extra.json",
                     "permissions": "0644",
                     "owner": "root:root",
                     "content": "{}\n",
                 },
                 {
-                    "path": "/tmp/bootstrap.sh",  # nosec B108
+                    "path": "/opt/parallelcluster/tmp/bootstrap.sh",
                     "permissions": "0744",
                     "owner": "root:root",
                     "content": '#!/bin/bash -x\n\nfunction error_exit\n{\n  echo "Bootstrap failed"\n}\n',
@@ -120,19 +120,19 @@ def test_get_compute_launch_template_ids(mocker, launch_template_config_content,
                 {
                     "content": '{"cluster":{"base_os":"alinux2023"}}\n',
                     "owner": "root:root",
-                    "path": "/tmp/dna.json",  # nosec B108
+                    "path": "/opt/parallelcluster/tmp/dna.json",
                     "permissions": "0644",
                 },
                 {
                     "content": '{"cluster": {"nvidia": {"enabled": "yes" }, "is_official_ami_build": "true"}}\n',
                     "owner": "root:root",
-                    "path": "/tmp/extra.json",  # nosec B108
+                    "path": "/opt/parallelcluster/tmp/extra.json",
                     "permissions": "0644",
                 },
                 {
                     "content": '#!/bin/bash -x\n\necho "Bootstrap failed with error: $1"\n',
                     "owner": "root:root",
-                    "path": "/tmp/bootstrap.sh",  # nosec B108
+                    "path": "/opt/parallelcluster/tmp/bootstrap.sh",
                     "permissions": "0744",
                 },
             ],
@@ -335,7 +335,7 @@ Content-Type: text/cloud-config; charset=us-ascii
 MIME-Version: 1.0
 
 write_files:
-  - path: /tmp/dna.json
+  - path: /opt/parallelcluster/tmp/dna.json
     permissions: '0644'
     owner: root:root
     content: |
@@ -429,11 +429,11 @@ def test_get_latest_dna_data_for_login_nodes_uses_version_from_config():
         pytest.param(
             [
                 {
-                    "path": "/tmp/extra.json",  # nosec B108
+                    "path": "/opt/parallelcluster/tmp/extra.json",
                     "content": "{}",
                 },
                 {
-                    "path": "/tmp/dna.json",  # nosec B108
+                    "path": "/opt/parallelcluster/tmp/dna.json",
                     "content": '{"cluster": {"base_os": "alinux2023"}}',
                 },
             ],
@@ -443,7 +443,7 @@ def test_get_latest_dna_data_for_login_nodes_uses_version_from_config():
         pytest.param(
             [
                 {
-                    "path": "/tmp/extra.json",  # nosec B108
+                    "path": "/opt/parallelcluster/tmp/extra.json",
                     "content": "{}",
                 },
             ],

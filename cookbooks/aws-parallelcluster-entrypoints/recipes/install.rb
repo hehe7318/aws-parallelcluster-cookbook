@@ -16,6 +16,13 @@ os_type 'Validate OS type specified by the user is the same as the OS identified
 
 return if node['conditions']['ami_bootstrapped']
 
+if node['cluster']['tmp_noexec'] == 'true'
+  execute 'TEST ONLY - remount /tmp as noexec' do
+    command 'mount --bind /tmp /tmp && mount -o remount,bind,noexec,nosuid,nodev /tmp'
+    not_if 'findmnt -no OPTIONS /tmp | grep -qw noexec'
+  end
+end
+
 include_recipe "aws-parallelcluster-shared::setup_envars"
 include_recipe "aws-parallelcluster-shared::setup_proxy" if node['cluster']['install_http_proxy_address']
 

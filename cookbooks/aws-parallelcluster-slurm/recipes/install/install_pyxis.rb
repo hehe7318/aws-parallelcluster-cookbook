@@ -37,8 +37,8 @@ bash "Install pyxis" do
   user 'root'
   code <<-PYXIS_INSTALL
     set -e
-    tar xf #{pyxis_tarball} -C /tmp
-    cd /tmp/pyxis-#{pyxis_version}
+    tar xf #{pyxis_tarball} -C #{node['cluster']['exec_tmp_dir']}
+    cd #{node['cluster']['exec_tmp_dir']}/pyxis-#{pyxis_version}
     CPPFLAGS='-I #{node['cluster']['slurm']['install_dir']}/include/' make
     CPPFLAGS='-I #{node['cluster']['slurm']['install_dir']}/include/' make install
   PYXIS_INSTALL

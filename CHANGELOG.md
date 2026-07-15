@@ -20,6 +20,9 @@ This file is used to list changes made in each version of the AWS ParallelCluste
   - yum-8.0.0 (from yum-7.4.20)
   - yum-epel-5.0.9 (from yum-epel-5.0.8)
 - Upgrade aws-cfn-bootstrap to version 2.0-39 (from 2.0-38).
+- Move all ParallelCluster-managed bootstrap files off `/tmp` into a dedicated `/opt/parallelcluster/tmp`
+  directory. Therefore, Image builds, cluster creations and updates work on custom AMIs that mount `/tmp` with `noexec`.
+  
 
 **CHANGES**
 - Enforce NFSv4-only on the ParallelCluster-managed NFS server (head node). The NFSv3 client stack (rpcbind, rpc-statd, lockd) are unchanged, so cluster nodes can still mount external NFSv3 servers.
@@ -51,6 +54,16 @@ via custom Slurm settings or the cluster name contains upper-case letters.
 **DEPRECATIONS**
 - Amazon Linux 2 is no longer supported.
 - AWS Batch as a scheduler is no longer supported.
+
+3.15.1
+------
+
+**CHANGES**
+- Patch official ParallelCluster AMIs to address [CVE-2026-31431](https://nvd.nist.gov/vuln/detail/CVE-2026-31431).
+- Disable `algif_aead` kernel module on Ubuntu to address [CVE-2026-31431](https://nvd.nist.gov/vuln/detail/CVE-2026-31431).
+- Upgrade NVIDIA driver to version 580.126.20 (from 580.105.08) for all OSs except Amazon Linux 2 to address CVE-2025-33219.
+- Upgrade NVIDIA Fabric manager to 580.126.20 (from 580.105.08) for all OSs except Amazon Linux 2.
+- Upgrade NVIDIA IMEX to 580.126.20 (from 580.105.08) for all OSs except Amazon Linux 2.
 
 3.15.0
 ------

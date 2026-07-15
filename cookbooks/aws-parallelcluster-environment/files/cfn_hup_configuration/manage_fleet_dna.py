@@ -255,7 +255,7 @@ def write_dna_files(write_files_section, shared_storage_loc):
     try:
         file_path = shared_storage_loc + "-dna.json"
         for data in write_files_section:
-            if data["path"] in ["/tmp/dna.json"]:  # nosec B108
+            if data["path"] in ["/opt/parallelcluster/tmp/dna.json"]:
                 with open(file_path, "w", encoding="utf-8") as file:
                     logger.info("Writing %s", file_path)
                     file.write(json.dumps(json.loads(data["content"]), indent=4))
@@ -335,7 +335,7 @@ def wait_for_login_nodes_lt_update(expected_config_version, region):
 def _extract_cluster_config_version(write_directives):
     """Extract cluster.cluster_config_version from the dna.json entry in a write_files list."""
     for entry in write_directives or []:
-        if entry.get("path") in ["/tmp/dna.json"]:  # nosec B108
+        if entry.get("path") in ["/opt/parallelcluster/tmp/dna.json"]:
             try:
                 dna = json.loads(entry["content"])
                 return dna.get("cluster", {}).get("cluster_config_version")

@@ -69,6 +69,7 @@ template "#{node['cluster']['scripts_dir']}/cluster-update-action.sh" do
   mode '0700'
   variables(
     monitor_shared_dir: node['cluster']['update']['dna_dir'],
-    launch_template_resource_id: node['cluster']['launch_template_id']
+    launch_template_resource_id: node['cluster']['launch_template_id'],
+    exec_tmp_dir: node['cluster']['exec_tmp_dir']
   )
 end
