@@ -131,3 +131,19 @@ def test_select_checks_routes_confirmation_required_check(monkeypatch, confirmed
     assert registered == [needs_approval]
     assert not_applicable == []
     assert not_approved == ([needs_approval] if expected_not_approved else [])
+
+
+@pytest.mark.parametrize(
+    "identifier",
+    [
+        "ReservedUsersAndGroups",
+        "CriticalPathsHaveExpectedPermissions",
+        "ImdsRoleMatchesCfnHupConfig",
+    ],
+)
+def test_default_registry_wires_in_permission_checks(identifier):
+    assert registry_module.DEFAULT_REGISTRY.get(identifier) is not None
+
+
+def test_default_registry_does_not_register_sample_check():
+    assert registry_module.DEFAULT_REGISTRY.get("SampleCheck") is None

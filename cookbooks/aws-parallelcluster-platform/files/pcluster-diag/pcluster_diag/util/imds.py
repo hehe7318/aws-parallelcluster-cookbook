@@ -12,11 +12,14 @@
 
 """Helpers for querying the EC2 Instance Metadata Service (IMDSv2)."""
 
+import urllib.error
 import urllib.request
+from typing import Optional
 
 _BASE_URL = "http://169.254.169.254/latest"  # nosec B104  link-local IMDS endpoint
 _TOKEN_URL = _BASE_URL + "/api/token"
 _INSTANCE_ID_URL = _BASE_URL + "/meta-data/instance-id"
+_IAM_SECURITY_CREDENTIALS_URL = _BASE_URL + "/meta-data/iam/security-credentials/"
 _TOKEN_TTL_SECONDS = "21600"  # nosec B105  session-token TTL (seconds), not a secret
 _TIMEOUT_SECONDS = 5
 
@@ -25,6 +28,25 @@ def get_instance_id() -> str:
     """Return the id of the current instance, fetched from IMDSv2."""
     token = _fetch_token()
     return _get(_INSTANCE_ID_URL, token)
+
+
+def get_iam_role_name() -> Optional[str]:
+    """Return the IAM role name exposed through the instance profile, or None if none is attached.
+
+    IMDS lists the role(s) reachable via the instance profile under
+    ``/meta-data/iam/security-credentials/``. When no instance profile is attached IMDS answers 404, so
+    None is returned. A ParallelCluster node always has exactly one role; if IMDS ever lists more than
+    one, the first is returned.
+    """
+    token = _fetch_token()
+    try:
+        body = _get(_IAM_SECURITY_CREDENTIALS_URL, token)
+    except urllib.error.HTTPError as error:
+        if error.code == 404:
+            return None
+        raise
+    names = [line.strip() for line in body.splitlines() if line.strip()]
+    return names[0] if names else None
 
 
 def _fetch_token() -> str:
