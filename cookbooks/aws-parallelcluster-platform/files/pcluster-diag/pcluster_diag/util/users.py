@@ -41,6 +41,22 @@ def get_group_gid(name: str) -> Optional[int]:
         return None
 
 
+def get_username_for_uid(uid: int) -> str:
+    """Return the user name for ``uid``, or the numeric uid as a string if it has no ``/etc/passwd`` entry."""
+    try:
+        return pwd.getpwuid(uid).pw_name
+    except KeyError:
+        return str(uid)
+
+
+def get_groupname_for_gid(gid: int) -> str:
+    """Return the group name for ``gid``, or the numeric gid as a string if it has no ``/etc/group`` entry."""
+    try:
+        return grp.getgrgid(gid).gr_name
+    except KeyError:
+        return str(gid)
+
+
 def get_usernames_for_uid(uid: int) -> List[str]:
     """Return every user name mapped to ``uid`` in ``/etc/passwd``, in database order.
 

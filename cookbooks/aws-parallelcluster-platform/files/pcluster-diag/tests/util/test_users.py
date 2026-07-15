@@ -56,6 +56,30 @@ def test_get_group_gid_returns_value_and_none(monkeypatch):
     assert users.get_group_gid("ghost") is None
 
 
+def test_get_username_for_uid_returns_name_or_numeric_fallback(monkeypatch):
+    monkeypatch.setattr(users.pwd, "getpwuid", lambda uid: _passwd("pcluster-admin", uid, uid))
+    assert users.get_username_for_uid(400) == "pcluster-admin"
+
+    def _raise(_uid):
+        raise KeyError("no such uid")
+
+    monkeypatch.setattr(users.pwd, "getpwuid", _raise)
+    # With no /etc/passwd entry, the numeric uid is returned as a string.
+    assert users.get_username_for_uid(1234) == "1234"
+
+
+def test_get_groupname_for_gid_returns_name_or_numeric_fallback(monkeypatch):
+    monkeypatch.setattr(users.grp, "getgrgid", lambda gid: _group("pcluster-admin", gid))
+    assert users.get_groupname_for_gid(400) == "pcluster-admin"
+
+    def _raise(_gid):
+        raise KeyError("no such gid")
+
+    monkeypatch.setattr(users.grp, "getgrgid", _raise)
+    # With no /etc/group entry, the numeric gid is returned as a string.
+    assert users.get_groupname_for_gid(1234) == "1234"
+
+
 def test_get_usernames_for_uid_returns_every_matching_name_in_order(monkeypatch):
     # svc-erd is listed before pcluster-admin, both sharing uid 400.
     database = [_passwd("root", 0), _passwd("svc-erd", 400), _passwd("pcluster-admin", 400), _passwd("slurm", 401)]

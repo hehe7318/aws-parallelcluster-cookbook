@@ -18,7 +18,6 @@ longer writable by ``pcluster-admin`` makes ``clusterstatusmgtd`` raise ``[Errno
 and the compute fleet gets stuck mid-transition (e.g. never leaving STOPPING).
 """
 
-from dataclasses import dataclass
 from typing import List, Optional
 
 from pcluster_diag.core.constants import (
@@ -33,35 +32,16 @@ from pcluster_diag.core.constants import (
 from pcluster_diag.models.check import Check
 from pcluster_diag.models.check_error import CheckError
 from pcluster_diag.models.context import Context, NodeType
+from pcluster_diag.models.expected_path_permissions import ExpectedPathPermissions
 from pcluster_diag.models.result import Result
 from pcluster_diag.util import filesystem
 
-
-@dataclass(frozen=True)
-class CriticalPath:
-    """A filesystem path ParallelCluster owns, with the ownership and mode it must have.
-
-    Attributes:
-        path: The absolute path to inspect.
-        owner: The expected owning user name.
-        group: The expected owning group name.
-        mode: The expected permission bits as a 4-digit octal string (e.g. ``0755``).
-        node_types: The node types the path is expected on; the Check inspects it only on those.
-    """
-
-    path: str
-    owner: str
-    group: str
-    mode: str
-    node_types: tuple
-
-
 # The critical paths ParallelCluster provisions, with the ownership/mode set by the cookbook. Add an
 # entry here whenever an investigation traces a failure to a mis-permissioned path.
-CRITICAL_PATHS: List[CriticalPath] = [
+CRITICAL_PATHS: List[ExpectedPathPermissions] = [
     # clusterstatusmgtd runs as pcluster-admin and writes the compute-fleet status here; if it loses
     # write access, fleet status transitions fail with EACCES.
-    CriticalPath(
+    ExpectedPathPermissions(
         path=COMPUTEFLEET_STATUS_PATH,
         owner=CLUSTER_ADMIN_USER,
         group=CLUSTER_ADMIN_GROUP,
@@ -70,7 +50,7 @@ CRITICAL_PATHS: List[CriticalPath] = [
     ),
     # Munge underpins Slurm authentication; munged refuses to start if its key is not private to the
     # munge user, breaking Slurm cluster-wide. Present wherever munge runs (head and compute).
-    CriticalPath(
+    ExpectedPathPermissions(
         path=MUNGE_KEY_PATH,
         owner=MUNGE_USER,
         group=MUNGE_USER,
@@ -78,7 +58,7 @@ CRITICAL_PATHS: List[CriticalPath] = [
         node_types=(NodeType.HEAD, NodeType.COMPUTE),
     ),
     # Slurm's StateSaveLocation; slurmctld cannot start if it is not owned by and private to the slurm user.
-    CriticalPath(
+    ExpectedPathPermissions(
         path=SLURM_STATE_SAVE_PATH,
         owner=SLURM_USER,
         group=SLURM_USER,
@@ -95,7 +75,7 @@ class CriticalPathsHaveExpectedPermissions(Check):
     WRONG_OWNERSHIP = "E2"
     WRONG_MODE = "E3"
 
-    def __init__(self, critical_paths: Optional[List[CriticalPath]] = None) -> None:
+    def __init__(self, critical_paths: Optional[List[ExpectedPathPermissions]] = None) -> None:
         """Create the Check, optionally overriding the inspected critical paths (used by tests)."""
         self._critical_paths = CRITICAL_PATHS if critical_paths is None else critical_paths
 
@@ -114,11 +94,11 @@ class CriticalPathsHaveExpectedPermissions(Check):
             return Result.failure(self, errors=errors)
         return Result.passed(self)
 
-    def _applicable(self, context: Context) -> List[CriticalPath]:
+    def _applicable(self, context: Context) -> List[ExpectedPathPermissions]:
         """Return the critical paths expected on the current node type."""
         return [critical for critical in self._critical_paths if context.node_type in critical.node_types]
 
-    def _inspect(self, critical: CriticalPath) -> List[CheckError]:
+    def _inspect(self, critical: ExpectedPathPermissions) -> List[CheckError]:
         """Return the CheckErrors for ``critical``: empty when it exists with the expected ownership and mode."""
         try:
             observed = filesystem.stat_path(critical.path)

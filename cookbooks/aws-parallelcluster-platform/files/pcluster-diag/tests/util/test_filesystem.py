@@ -12,9 +12,7 @@
 
 """Unit tests for the filesystem ownership/permission helpers."""
 
-import grp
 import os
-import pwd
 
 import pytest
 
@@ -26,10 +24,8 @@ def test_stat_path_reports_owner_group_and_octal_mode(tmp_path, monkeypatch):
     target.write_text("{}", encoding="utf-8")
     os.chmod(target, 0o755)
 
-    monkeypatch.setattr(
-        filesystem.pwd, "getpwuid", lambda uid: pwd.struct_passwd(("pcluster-admin", "x", uid, uid, "", "", ""))
-    )
-    monkeypatch.setattr(filesystem.grp, "getgrgid", lambda gid: grp.struct_group(("pcluster-admin", "x", gid, [])))
+    monkeypatch.setattr(filesystem.users, "get_username_for_uid", lambda uid: "pcluster-admin")
+    monkeypatch.setattr(filesystem.users, "get_groupname_for_gid", lambda gid: "pcluster-admin")
 
     result = filesystem.stat_path(str(target))
 
@@ -38,26 +34,36 @@ def test_stat_path_reports_owner_group_and_octal_mode(tmp_path, monkeypatch):
     assert result.mode == "0755"
 
 
-def test_stat_path_falls_back_to_numeric_ids_when_names_are_unknown(tmp_path, monkeypatch):
-    target = tmp_path / "orphaned"
+def test_stat_path_passes_the_paths_uid_and_gid_to_the_name_lookups(tmp_path, monkeypatch):
+    target = tmp_path / "file"
+    target.write_text("x", encoding="utf-8")
+    seen = {}
+
+    def fake_username(uid):
+        seen["uid"] = uid
+        return "u"
+
+    def fake_groupname(gid):
+        seen["gid"] = gid
+        return "g"
+
+    monkeypatch.setattr(filesystem.users, "get_username_for_uid", fake_username)
+    monkeypatch.setattr(filesystem.users, "get_groupname_for_gid", fake_groupname)
+
+    filesystem.stat_path(str(target))
+
+    assert seen["uid"] == target.stat().st_uid
+    assert seen["gid"] == target.stat().st_gid
+
+
+def test_stat_path_reports_mode_as_four_digit_octal(tmp_path, monkeypatch):
+    target = tmp_path / "file"
     target.write_text("x", encoding="utf-8")
     os.chmod(target, 0o640)
+    monkeypatch.setattr(filesystem.users, "get_username_for_uid", lambda uid: "u")
+    monkeypatch.setattr(filesystem.users, "get_groupname_for_gid", lambda gid: "g")
 
-    def _no_user(_uid):
-        raise KeyError("unknown uid")
-
-    def _no_group(_gid):
-        raise KeyError("unknown gid")
-
-    monkeypatch.setattr(filesystem.pwd, "getpwuid", _no_user)
-    monkeypatch.setattr(filesystem.grp, "getgrgid", _no_group)
-
-    result = filesystem.stat_path(str(target))
-
-    # With no passwd/group entry, the numeric ids are reported as strings.
-    assert result.owner == str(target.stat().st_uid)
-    assert result.group == str(target.stat().st_gid)
-    assert result.mode == "0640"
+    assert filesystem.stat_path(str(target)).mode == "0640"
 
 
 def test_stat_path_raises_for_missing_path(tmp_path):

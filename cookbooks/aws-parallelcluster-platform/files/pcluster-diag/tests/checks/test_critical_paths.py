@@ -15,15 +15,16 @@
 import pytest
 
 from pcluster_diag.checks import critical_paths
-from pcluster_diag.checks.critical_paths import CriticalPath, CriticalPathsHaveExpectedPermissions
+from pcluster_diag.checks.critical_paths import CriticalPathsHaveExpectedPermissions
 from pcluster_diag.core.constants import COMPUTEFLEET_STATUS_PATH, MUNGE_KEY_PATH, SLURM_STATE_SAVE_PATH
 from pcluster_diag.models.context import NodeType
+from pcluster_diag.models.expected_path_permissions import ExpectedPathPermissions
 from pcluster_diag.models.result import Status
 from pcluster_diag.util.filesystem import PathStat
 from tests.sample_data import sample_context
 
 # A single head-node critical path used by most tests (mirrors computefleet-status.json).
-_HEAD_PATH = CriticalPath(
+_HEAD_PATH = ExpectedPathPermissions(
     path="/opt/parallelcluster/shared/computefleet-status.json",
     owner="pcluster-admin",
     group="pcluster-admin",
@@ -160,7 +161,7 @@ def test_run_fails_when_path_missing(monkeypatch):
 
 
 def test_run_only_inspects_paths_for_current_node_type(monkeypatch):
-    compute_path = CriticalPath("/x", "root", "root", "0644", (NodeType.COMPUTE,))
+    compute_path = ExpectedPathPermissions("/x", "root", "root", "0644", (NodeType.COMPUTE,))
     inspected = []
 
     def stat_path(path):

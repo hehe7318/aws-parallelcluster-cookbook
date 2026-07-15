@@ -12,11 +12,11 @@
 
 """Helpers for inspecting filesystem ownership and permissions."""
 
-import grp
-import pwd
 import stat
 from dataclasses import dataclass
 from pathlib import Path
+
+from pcluster_diag.util import users
 
 
 @dataclass
@@ -42,26 +42,10 @@ def stat_path(path: str) -> PathStat:
     """
     info = Path(path).stat()
     return PathStat(
-        owner=_owner_name(info.st_uid),
-        group=_group_name(info.st_gid),
+        owner=users.get_username_for_uid(info.st_uid),
+        group=users.get_groupname_for_gid(info.st_gid),
         mode=_octal_mode(info.st_mode),
     )
-
-
-def _owner_name(uid: int) -> str:
-    """Return the user name for ``uid``, or the numeric uid as a string if it has no passwd entry."""
-    try:
-        return pwd.getpwuid(uid).pw_name
-    except KeyError:
-        return str(uid)
-
-
-def _group_name(gid: int) -> str:
-    """Return the group name for ``gid``, or the numeric gid as a string if it has no group entry."""
-    try:
-        return grp.getgrgid(gid).gr_name
-    except KeyError:
-        return str(gid)
 
 
 def _octal_mode(mode: int) -> str:
