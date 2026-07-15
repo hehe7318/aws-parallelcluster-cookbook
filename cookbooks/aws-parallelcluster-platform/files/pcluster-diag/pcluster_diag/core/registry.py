@@ -23,12 +23,7 @@ import click
 from pcluster_diag.checks.cfn_hup import CfnHupRunsOnlyOnHeadNode
 from pcluster_diag.checks.critical_paths import CriticalPathsHaveExpectedPermissions
 from pcluster_diag.checks.instance_profile import ImdsRoleMatchesCfnHupConfig
-from pcluster_diag.checks.reserved_users import (
-    ReservedGroupsHaveUniqueIds,
-    ReservedUsersExist,
-    ReservedUsersHaveUniqueIds,
-)
-from pcluster_diag.checks.sample import SampleCheck
+from pcluster_diag.checks.reserved_users import ReservedUsersAndGroups
 from pcluster_diag.models.check import Check
 from pcluster_diag.models.context import Context
 
@@ -133,10 +128,7 @@ class Registry:
 DEFAULT_REGISTRY = (
     Registry()
     .register(CfnHupRunsOnlyOnHeadNode())
-    .register(ReservedUsersExist())
-    .register(ReservedUsersHaveUniqueIds())
-    .register(ReservedGroupsHaveUniqueIds())
+    .register(ReservedUsersAndGroups())
     .register(CriticalPathsHaveExpectedPermissions())
     .register(ImdsRoleMatchesCfnHupConfig())
-    .register(SampleCheck())
 )

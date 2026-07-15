@@ -76,11 +76,25 @@ def test_description():
     assert "critical files" in _check().description
 
 
-def test_should_run_only_on_node_types_with_applicable_paths():
-    # The sample head path applies to HEAD only.
-    assert _check().should_run(sample_context(NodeType.HEAD)) is True
-    assert _check().should_run(sample_context(NodeType.COMPUTE)) is False
-    assert _check().should_run(sample_context(NodeType.LOGIN)) is False
+@pytest.mark.parametrize("node_type", list(NodeType), ids=lambda nt: nt.name)
+def test_always_runs(node_type):
+    # The check always applies; a node type with no applicable path simply passes (below).
+    assert _check().should_run(sample_context(node_type)) is True
+
+
+def test_run_passes_when_no_path_applies_to_node_type(monkeypatch):
+    # The sample path is HEAD-only, so on a compute node there is nothing to inspect -> PASSED.
+    inspected = []
+    monkeypatch.setattr(
+        critical_paths.filesystem,
+        "stat_path",
+        lambda path: inspected.append(path) or PathStat(owner="x", group="x", mode="0000"),
+    )
+
+    result = _check().run(sample_context(NodeType.COMPUTE))
+
+    assert result.status is Status.PASSED
+    assert inspected == []
 
 
 def test_run_passes_when_owner_group_mode_all_match(monkeypatch):

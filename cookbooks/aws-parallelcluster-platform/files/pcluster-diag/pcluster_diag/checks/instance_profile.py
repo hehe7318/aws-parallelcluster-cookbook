@@ -59,27 +59,14 @@ class ImdsRoleMatchesCfnHupConfig(Check):
         if configured_role is None:
             return Result.failure(
                 self,
-                errors=[
-                    CheckError(
-                        self.NO_ROLE_CONFIGURED,
-                        "cfn-hup config '{}' has no 'role' set under its [main] section; cfn-hup cannot "
-                        "retrieve credentials from IMDS without it.".format(self._cfn_hup_conf_path),
-                    )
-                ],
+                errors=[CheckError(self.NO_ROLE_CONFIGURED, "No 'role' is set in {}.".format(self._cfn_hup_conf_path))],
             )
 
         imds_role = imds.get_iam_role_name()
-
         if imds_role is None:
             return Result.failure(
                 self,
-                errors=[
-                    CheckError(
-                        self.NO_ROLE_FROM_IMDS,
-                        "cfn-hup is configured to use IAM role '{}', but IMDS reports no role attached to "
-                        "this instance. cfn-hup credential retrieval will fail.".format(configured_role),
-                    )
-                ],
+                errors=[CheckError(self.NO_ROLE_FROM_IMDS, "IMDS reports no IAM role attached to this instance.")],
             )
 
         if imds_role != configured_role:
@@ -88,13 +75,8 @@ class ImdsRoleMatchesCfnHupConfig(Check):
                 errors=[
                     CheckError(
                         self.ROLE_MISMATCH,
-                        "The IAM role returned by IMDS ('{}') does not match the role configured in {} "
-                        "('{}'). The instance role was likely changed without updating the cfn-hup config, "
-                        "which makes cfn-hup credential retrieval return 404 and cluster updates fail. Update "
-                        "the 'role' in {} to '{}' (or run 'pcluster update-cluster' rather than changing the "
-                        "role out of band).".format(
-                            imds_role, self._cfn_hup_conf_path, configured_role, self._cfn_hup_conf_path, imds_role
-                        ),
+                        "The IAM role reported by IMDS ('{}') does not match the role configured in {} ('{}'); "
+                        "make sure they match.".format(imds_role, self._cfn_hup_conf_path, configured_role),
                     )
                 ],
             )

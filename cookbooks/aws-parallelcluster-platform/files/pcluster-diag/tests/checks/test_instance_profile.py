@@ -89,7 +89,7 @@ def test_fails_when_imds_reports_no_role(monkeypatch, tmp_path):
 
     assert result.status is Status.FAILURE
     assert _codes(result) == [ImdsRoleMatchesCfnHupConfig.NO_ROLE_FROM_IMDS]
-    assert "IMDS reports no role" in _messages(result)
+    assert "IMDS reports no IAM role" in _messages(result)
 
 
 def test_fails_when_config_has_no_role(monkeypatch, tmp_path):
@@ -102,7 +102,7 @@ def test_fails_when_config_has_no_role(monkeypatch, tmp_path):
 
     assert result.status is Status.FAILURE
     assert _codes(result) == [ImdsRoleMatchesCfnHupConfig.NO_ROLE_CONFIGURED]
-    assert "no 'role' set" in _messages(result)
+    assert "No 'role' is set" in _messages(result)
 
 
 def test_reads_role_when_other_values_contain_percent(monkeypatch, tmp_path):

@@ -104,10 +104,6 @@ class CriticalPathsHaveExpectedPermissions(Check):
         """Return the human-readable description of this Check."""
         return "Verify that ParallelCluster critical files have their expected owner, group, and permissions."
 
-    def should_run(self, context: Context) -> bool:
-        """Run only when at least one critical path applies to the current node type."""
-        return bool(self._applicable(context))
-
     def run(self, context: Context) -> Result:
         """Pass when every applicable critical path matches its expected owner/group/mode; fail otherwise."""
         errors = []
