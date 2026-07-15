@@ -22,7 +22,7 @@ from pcluster_diag.util import filesystem
 def test_stat_path_reports_owner_group_and_octal_mode(tmp_path, monkeypatch):
     target = tmp_path / "computefleet-status.json"
     target.write_text("{}", encoding="utf-8")
-    os.chmod(target, 0o755)
+    os.chmod(target, 0o700)
 
     monkeypatch.setattr(filesystem.users, "get_username_for_uid", lambda uid: "pcluster-admin")
     monkeypatch.setattr(filesystem.users, "get_groupname_for_gid", lambda gid: "pcluster-admin")
@@ -31,7 +31,7 @@ def test_stat_path_reports_owner_group_and_octal_mode(tmp_path, monkeypatch):
 
     assert result.owner == "pcluster-admin"
     assert result.group == "pcluster-admin"
-    assert result.mode == "0755"
+    assert result.mode == "0700"
 
 
 def test_stat_path_passes_the_paths_uid_and_gid_to_the_name_lookups(tmp_path, monkeypatch):
@@ -59,11 +59,11 @@ def test_stat_path_passes_the_paths_uid_and_gid_to_the_name_lookups(tmp_path, mo
 def test_stat_path_reports_mode_as_four_digit_octal(tmp_path, monkeypatch):
     target = tmp_path / "file"
     target.write_text("x", encoding="utf-8")
-    os.chmod(target, 0o640)
+    os.chmod(target, 0o600)
     monkeypatch.setattr(filesystem.users, "get_username_for_uid", lambda uid: "u")
     monkeypatch.setattr(filesystem.users, "get_groupname_for_gid", lambda gid: "g")
 
-    assert filesystem.stat_path(str(target)).mode == "0640"
+    assert filesystem.stat_path(str(target)).mode == "0600"
 
 
 def test_stat_path_raises_for_missing_path(tmp_path):
