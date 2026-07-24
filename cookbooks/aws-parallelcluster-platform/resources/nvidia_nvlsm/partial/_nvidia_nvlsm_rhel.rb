@@ -12,14 +12,6 @@
 # This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, express or implied.
 # See the License for the specific language governing permissions and limitations under the License.
 
-action :lock_package_version do
-  package 'yum-plugin-versionlock'
-  execute "yum versionlock #{nvidia_nvlsm_package}" do
-    retries 3
-    retry_delay 5
-  end
-end
-
 def nvidia_nvlsm_install_dependencies_commands
   "yum install -y infiniband-diags libibumad"
 end

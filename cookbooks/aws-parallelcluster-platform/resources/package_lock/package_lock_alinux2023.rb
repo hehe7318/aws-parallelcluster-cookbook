@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 #
-# Copyright:: 2013-2023 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# Copyright:: 2026 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License").
 # You may not use this file except in compliance with the License.
@@ -12,9 +12,9 @@
 # This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, express or implied.
 # See the License for the specific language governing permissions and limitations under the License.
 
-action :lock_package_version do
-  execute "apt-mark hold #{fabric_manager_package}" do
-    retries 3
-    retry_delay 5
-  end
+provides :package_lock, platform: 'amazon' do |node|
+  node['platform_version'].to_i == 2023
 end
+
+use 'partial/_package_lock_common.rb'
+use 'partial/_package_lock_rhel.rb'

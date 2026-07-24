@@ -25,7 +25,7 @@ action :install do
     retry_delay 5
   end
 
-  action_lock_package_version
+  package_lock nvidia_nvlsm_package
 end
 
 action :install_nvlsm_dependencies do
