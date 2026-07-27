@@ -19,10 +19,6 @@ end
 use 'partial/_gdrcopy_common.rb'
 use 'partial/_gdrcopy_common_rhel.rb'
 
-def gdrcopy_enabled?
-  nvidia_enabled?
-end
-
 def gdrcopy_platform
   "el#{node['platform_version'].to_i}"
 end

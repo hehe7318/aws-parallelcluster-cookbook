@@ -16,6 +16,14 @@ def gdrcopy_version
   node['cluster']['nvidia']['gdrcopy']['version']
 end
 
+def gdrcopy_enabled?
+  nvidia_enabled? && gdrcopy_config_enabled?
+end
+
+def gdrcopy_config_enabled?
+  ['yes', true, 'true'].include?(node['cluster']['nvidia']['gdrcopy']['enabled'])
+end
+
 # True if gdrcopy is installed (regardless of version). Like nvidia-smi for the
 # driver, the gdrcopy_sanity binary is the one of the test commands that are
 # installed by GDRCopy and we use it as signal of a healthy install

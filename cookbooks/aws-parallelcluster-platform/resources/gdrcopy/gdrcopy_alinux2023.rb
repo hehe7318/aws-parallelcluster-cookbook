@@ -19,10 +19,6 @@ end
 use 'partial/_gdrcopy_common.rb'
 use 'partial/_gdrcopy_common_rhel.rb'
 
-def gdrcopy_enabled?
-  nvidia_enabled?
-end
-
 def gdrcopy_build_dependencies
   %w(dkms rpm-build make check check-devel) # Subunit is not available in Al2023
 end

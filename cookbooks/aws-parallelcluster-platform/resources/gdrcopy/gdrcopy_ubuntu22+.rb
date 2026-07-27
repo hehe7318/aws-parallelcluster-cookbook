@@ -36,10 +36,6 @@ def installation_code
   COMMAND
 end
 
-def gdrcopy_enabled?
-  nvidia_enabled?
-end
-
 def gdrcopy_service
   'gdrdrv'
 end

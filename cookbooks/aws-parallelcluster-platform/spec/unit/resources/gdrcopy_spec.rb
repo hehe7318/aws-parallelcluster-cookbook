@@ -176,6 +176,24 @@ describe 'gdrcopy:setup' do
       end
     end
 
+    context "on #{platform}#{version} when gdrcopy is disabled via attribute" do
+      # NVIDIA is enabled, but the gdrcopy escape-hatch attribute is off, so
+      # gdrcopy_enabled? must be false and nothing is installed.
+      cached(:chef_run) do
+        stubs_for_resource('gdrcopy') do |res|
+          allow(res).to receive(:nvidia_enabled?).and_return(true)
+        end
+        runner = runner(platform: platform, version: version, step_into: ['gdrcopy']) do |node|
+          node.override['cluster']['nvidia']['gdrcopy']['enabled'] = false
+        end
+        ConvergeGdrcopy.setup(runner)
+      end
+
+      it 'does not install gdrcopy' do
+        is_expected.not_to run_bash('Install NVIDIA GDRCopy')
+      end
+    end
+
     context "on #{platform}#{version} when gdrcopy enabled" do
       cached(:sources_dir) { 'sources_dir' }
       cached(:gdrcopy_service) { platform == 'ubuntu' ? 'gdrdrv' : 'gdrcopy' }

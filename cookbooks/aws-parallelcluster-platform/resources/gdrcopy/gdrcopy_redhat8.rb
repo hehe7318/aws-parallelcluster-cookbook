@@ -19,10 +19,6 @@ end
 use 'partial/_gdrcopy_common.rb'
 use 'partial/_gdrcopy_common_rhel.rb'
 
-def gdrcopy_enabled?
-  nvidia_enabled?
-end
-
 def gdrcopy_build_dependencies
   if aws_region.start_with?("us-iso")
     %w(rpm-build make check check-devel)
