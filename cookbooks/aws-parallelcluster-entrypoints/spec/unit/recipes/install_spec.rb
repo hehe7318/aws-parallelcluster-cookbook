@@ -15,6 +15,7 @@ require 'spec_helper'
 
 describe 'aws-parallelcluster-entrypoints::install' do
   all_recipes = %w(
+    aws-parallelcluster-shared::remount_tmp_noexec
     aws-parallelcluster-shared::setup_envars
     aws-parallelcluster-platform::install
     aws-parallelcluster-environment::install
@@ -23,6 +24,7 @@ describe 'aws-parallelcluster-entrypoints::install' do
   )
 
   setup_proxy_recipe = 'aws-parallelcluster-shared::setup_proxy'
+  remount_tmp_noexec_recipe = 'aws-parallelcluster-shared::remount_tmp_noexec'
 
   before do
     @included_recipes = []
@@ -50,6 +52,18 @@ describe 'aws-parallelcluster-entrypoints::install' do
       end
 
       context "when ami is not bootstrapped" do
+        cached(:chef_run) do
+          runner = runner(platform: platform, version: version) do |node|
+            node.override['conditions']['ami_bootstrapped'] = false
+          end
+          runner.converge(described_recipe)
+        end
+
+        it "includes the remount_tmp_noexec recipe" do
+          chef_run
+          expect(@included_recipes).to include(remount_tmp_noexec_recipe)
+        end
+
         context "when install_http_proxy_address is set" do
           cached(:chef_run) do
             runner = runner(platform: platform, version: version) do |node|
