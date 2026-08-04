@@ -57,6 +57,21 @@ def test_lustre_mounts_filters_out_non_lustre_types():
     assert [m.mount_dir for m in mounts] == ["/fsx"]
 
 
+@pytest.mark.parametrize("configured", ["fsx", "/fsx", "  fsx  "])
+def test_lustre_mounts_normalizes_mount_dir_to_an_absolute_path(configured):
+    # MountDir accepts a relative path; the cookbook mounts it at the equivalent absolute path, so the
+    # configured value must be normalized before it is matched against /proc/mounts.
+    storage = [{"Name": "fsx", "StorageType": "FsxLustre", "MountDir": configured}]
+    context = sample_context_with_lustre(NodeType.HEAD, shared_storage=storage)
+
+    mounts = shared_storage.lustre_mounts(context)
+
+    assert [m.mount_dir for m in mounts] == ["/fsx"]
+    assert shared_storage.is_mounted(
+        shared_storage.parse_proc_mounts(_PROC_MOUNTS), mounts[0].mount_dir, shared_storage.LUSTRE_FS_TYPE
+    )
+
+
 def test_shared_storage_mounts_skips_malformed_entries():
     storage = [
         {"StorageType": "FsxLustre"},  # no MountDir

@@ -37,13 +37,25 @@ PROC_MOUNTS_PATH = "/proc/mounts"
 LUSTRE_FS_TYPE = "lustre"
 
 
+def absolute_mount_dir(mount_dir: str) -> str:
+    """Return ``mount_dir`` as the absolute path the filesystem is actually mounted at.
+
+    ``MountDir`` accepts a relative path: ``MountDir: fsx`` and ``MountDir: /fsx`` are equivalent and both
+    mount at ``/fsx``. The cookbook applies the same normalization before mounting (``format_directory``),
+    so the configured value must be normalized here too before it is compared against ``/proc/mounts`` or
+    passed to a command.
+    """
+    stripped = mount_dir.strip()
+    return stripped if stripped.startswith("/") else "/" + stripped
+
+
 @dataclass
 class SharedStorageMount:
     """A shared-storage mount declared in the cluster configuration.
 
     Attributes:
         storage_type: The ``StorageType`` (e.g. ``FsxLustre``).
-        mount_dir: The ``MountDir`` the filesystem is mounted at.
+        mount_dir: The absolute path the filesystem is mounted at (the normalized ``MountDir``).
         name: The configured ``Name``, or None when absent.
         file_system_id: The FSx filesystem id (from ``FsxLustreSettings``), or None when absent.
     """
@@ -84,7 +96,7 @@ def shared_storage_mounts(context: Context) -> List[SharedStorageMount]:
         mounts.append(
             SharedStorageMount(
                 storage_type=storage_type,
-                mount_dir=mount_dir,
+                mount_dir=absolute_mount_dir(mount_dir),
                 name=entry.get("Name"),
                 file_system_id=settings.get("FileSystemId"),
             )
