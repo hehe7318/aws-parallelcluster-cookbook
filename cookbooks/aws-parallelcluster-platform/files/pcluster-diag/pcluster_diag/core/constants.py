@@ -116,10 +116,76 @@ DIRECTORY_LOOKUP_COMMAND_TIMEOUT_SECONDS = 30
 # FSx / shared-storage diagnostics
 # `lfs df -h` must return within this or the filesystem is treated as hanging (server/OST unreachable).
 FSX_LFS_DF_TIMEOUT_SECONDS = 30
+# `lfs check servers` probes every target, so allow it longer than a plain `lfs df`.
+FSX_LFS_CHECK_TIMEOUT_SECONDS = 60
+# `lnetctl net show` is a fast, local query; cap it low so a wedged LNet cannot stall the check.
+FSX_LNET_SHOW_TIMEOUT_SECONDS = 15
+# `lctl get_param` reads client-side import state; bound it so a stuck import cannot hang the check.
+FSX_OST_QUERY_TIMEOUT_SECONDS = 30
+# `lnetctl ping` over EFA; a hang here is the signal the EFA data path is not working.
+FSX_EFA_PING_TIMEOUT_SECONDS = 15
 # The StorageType value a FSx for Lustre mount carries in the cluster configuration's SharedStorage.
 LUSTRE_STORAGE_TYPE = "FsxLustre"
-# NFS-based shared-storage types, handled with shallow reachability only (not in scope for PR1).
+# NFS-based shared-storage types. Reserved for a future NFS reachability check (a sibling of the Lustre
+# checks); not consumed yet.
 NFS_STORAGE_TYPES = ("FsxOntap", "FsxOpenZfs", "Efs")
+# The osc/mdc import ``state:`` value indicating a reachable, fully-connected target.
+HEALTHY_TARGET_STATE = "FULL"
+# --- EFA-for-Lustre client parameters -----------------------------------------------------
+# TODO/TO-CHECK: every value in this section mirrors the FSx EFA-Lustre client setup, which we cannot
+# import. If that setup bumps a version floor, adds/renames a p6+ family, or changes how many EFA devices a
+# family binds, re-sync the constants below or these checks will drift and under/over-report. Source:
+# https://docs.aws.amazon.com/fsx/latest/LustreGuide/configure-efa-clients.html
+#
+# The LNet net type for the EFA LND (kefalnd).
+EFA_LNET_NET = "efa"
+# EFA/RDMA devices surface here; the count is compared against the devices bound to LNet.
+EFA_INFINIBAND_SYSFS = "/sys/class/infiniband"
+# The EFA driver kernel module (its version gates the EFA-Lustre path).
+EFA_DRIVER_KERNEL_MODULE = "efa"
+# The kefalnd kernel module (the EFA LND). Its presence is how the setup defines "this Lustre client
+# supports EFA" (it verifies that ``modinfo kefalnd`` succeeds), so it is a prerequisite for any
+# EFA-for-Lustre probing, checked before the data-path probes run.
+EFA_KEFALND_KERNEL_MODULE = "kefalnd"
+# Minimum EFA-path versions the setup enforces before configuring EFA.
+MIN_EFA_DRIVER_VERSION = "2.12.1"
+MIN_KEFALND_VERSION_P6 = "1.1.1"  # kefalnd floor, enforced on p6+ instances only
+
+# Minimum Lustre *client* version per cluster base_os (dna.json cluster.base_os). This is a general Lustre
+# floor -- NOT the EFA floor -- so it applies to every FsxLustre mount, EFA or not. rhel8/rocky8 ship the
+# 2.12 client (older 4.18 kernel); every other supported base_os ships 2.15. A base_os not in the map (or
+# unknown) uses the default. Source: https://docs.aws.amazon.com/fsx/latest/LustreGuide/lustre-client-matrix.html
+LUSTRE_CLIENT_MIN_VERSION_DEFAULT = "2.15"
+LUSTRE_CLIENT_MIN_VERSION_BY_OS = {
+    "rhel8": "2.12",
+    "rocky8": "2.12",
+}
+# base_os values where EFA-for-Lustre is NOT supported: EFA-for-Lustre requires AL2023 / RHEL 9.5+ /
+# Ubuntu 22.04+ (per configure-efa-clients.html); rhel8/rocky8 run the older 4.18 kernel and are excluded,
+# so the EFA probes are skipped on them.
+EFA_LUSTRE_UNSUPPORTED_OSES = ("rhel8", "rocky8")
+# Instance-family prefixes that require the kefalnd version check (the p6+ families).
+P6PLUS_INSTANCE_PREFIXES = ("p6-b200", "p6e-gb200", "p6-b300")
+
+# How many EFA devices the FSx-for-Lustre EFA client setup binds to LNet by default, keyed by exact
+# instance type. Values mirror the "Default Number of EFA Interfaces" table in
+# https://docs.aws.amazon.com/fsx/latest/LustreGuide/configure-efa-clients.html#add-efa-interfaces --
+# these are the counts the setup script configures automatically per instance type. An int is exactly the
+# number of devices bound (capped at devices actually present). An instance type NOT in this table follows
+# the doc's dynamic fallback ("Other instances with multiple/single network cards" -> 2/1); we do not
+# encode that fallback because it depends on live NIC count, so unknown types get no static expectation
+# here and the underbinding check only flags a total absence of bound devices.
+EFA_EXPECTED_BOUND_DEVICES = {
+    "p5.48xlarge": 8,
+    "p5e.48xlarge": 8,
+    "p5en.48xlarge": 8,
+    "p6-b200.48xlarge": 8,
+    "p6-b300.48xlarge": 16,
+    "p6e-gb200.36xlarge": 8,
+}
+# The systemd oneshot service the FSx EFA-Lustre client setup installs to (re)configure LNet on every
+# boot. Its state is the persistence/health signal for this delivery vehicle.
+EFA_LUSTRE_SYSTEMD_SERVICE = "configure-efa-fsx-lustre-client.service"
 
 # Slurm accounting
 SLURM_ETC_DIR = DEFAULT_SLURM_INSTALL_DIR + "/etc"
