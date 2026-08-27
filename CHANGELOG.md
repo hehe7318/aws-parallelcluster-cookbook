@@ -6,6 +6,10 @@ This file is used to list changes made in each version of the AWS ParallelCluste
 3.17.0
 ------
 
+**BUG FIXES**
+- Fix cluster update hanging indefinitely on nodes that have a shared storage mount whose server is unreachable,
+  by removing the diagnostic `fuser -mv <mount point>` step that ran before every shared storage unmount.
+
 3.16.0
 ------
 
