@@ -7,8 +7,7 @@ This file is used to list changes made in each version of the AWS ParallelCluste
 ------
 
 **BUG FIXES**
-- Fix cluster update hanging indefinitely on nodes that have a shared storage mount whose server is unreachable,
-  by removing the diagnostic `fuser -mv <mount point>` step that ran before every shared storage unmount.
+- Fix cluster update hanging and eventually failing when a node has an unresponsive shared storage mount by no longer running `fuser` on the mount point before unmounting it.
 
 3.16.0
 ------
